@@ -1,0 +1,52 @@
+{
+  "name": "p2p-datachannel",
+  "version": "1.0.0",
+  "description": "Peer-to-peer (P2P) data channel over WebRTC and a signaling channel on the browser",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint --project .",
+    "test": "echo \"No tests specified\"",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brennervaz/p2p-datachannel.git"
+  },
+  "keywords": [
+    "webrtc",
+    "peer",
+    "to",
+    "peer",
+    "p2p",
+    "data",
+    "channel",
+    "WebRTC",
+    "PeerJS",
+    "signaling",
+    "web",
+    "development",
+    "TypeScript",
+    "JavaScript",
+    "library",
+    "open",
+    "source",
+    "communication",
+    "real-time",
+    "messaging"
+  ],
+  "author": "Brenner Vaz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brennervaz/p2p-datachannel/issues"
+  },
+  "homepage": "https://github.com/brennervaz/p2p-datachannel#readme",
+  "devDependencies": {
+    "tslint": "^6.1.3",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "peerjs": "^1.4.7"
+  }
+}
