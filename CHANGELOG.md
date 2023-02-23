@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.2...v1.2.3) (2023-02-23)
+
+
+### Bug Fixes
+
+* export services ([bf51f8f](https://github.com/brennervaz/p2p-data-channel/commit/bf51f8fb552ebd4cca514e395d83fcd16c3200c3))
+
 ## [1.2.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.1...v1.2.2) (2023-02-23)
 
 
