@@ -27,9 +27,6 @@ jobs:
       - run:
           name: Build library
           command: npm run build
-      - run:
-          name: Build types
-          command: npm run types
       - persist_to_workspace:
           root: .
           paths:
