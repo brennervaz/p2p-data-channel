@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.0...v1.2.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* attach types generation to build command ([dff6169](https://github.com/brennervaz/p2p-data-channel/commit/dff6169ec7b3a3bee729370d748469e7f9257ade))
+
 # [1.2.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.1.1...v1.2.0) (2023-02-23)
 
 
