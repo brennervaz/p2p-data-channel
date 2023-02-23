@@ -1,0 +1,62 @@
+shape: sequence_diagram
+
+peer1: P2PDataChannel (initiator/peer)
+peer1.shape: package
+rtcConnection1: RTCPeerConnection
+signaling1: SignalingChannel
+signaling1.shape: cloud
+
+signaling2: SignalingChannel
+signaling2.shape: cloud
+rtcConnection2: RTCPeerConnection
+peer2: P2PDataChannel (receiver/host)
+peer2.shape: package
+
+signaling initiation: {
+  peer1 -> signaling1: open connection
+  peer2 -> signaling2: open connection
+}
+
+signaling connection: {
+  peer1 -> signaling1: connect
+  signaling1 -> signaling2: connect
+  signaling1 <-> signaling2: connection established
+}
+
+RTC handshake: {
+  peer1 -> rtcConnection1: create instance
+  peer1 <- rtcConnection1: instance created
+  peer1 -> rtcConnection1: request offer
+
+  rtcConnection1 -> rtcConnection1: create offer
+  rtcConnection1 -> rtcConnection1: set local description
+  rtcConnection1 -> peer1 -> signaling1 -> signaling2 -> peer2: offer
+
+  peer2 -> rtcConnection2: create instance
+  peer2 <- rtcConnection2: instance created
+  peer2 -> rtcConnection2: forward offer
+
+  rtcConnection2 -> rtcConnection2: set remote description
+  rtcConnection2 -> rtcConnection2: create answer
+  rtcConnection2 -> rtcConnection2: set local description
+  rtcConnection2 -> peer2 -> signaling2 -> signaling1 -> peer1 -> rtcConnection1: answer
+
+  rtcConnection1 -> rtcConnection1: set remote description
+  rtcConnection1 -> rtcConnection1: gather local ICE candidate
+  rtcConnection1 -> peer1 -> signaling1 -> signaling2 -> peer2 -> rtcConnection2: ICE candidate
+
+  rtcConnection2 -> rtcConnection2: add remote ICE candidate
+  rtcConnection2 -> rtcConnection2: gather local ICE candidate
+  rtcConnection2 -> peer2 -> signaling2 -> signaling1 -> peer1 -> rtcConnection1: ICE candidate
+
+  rtcConnection1 -> rtcConnection1: add remote ICE candidate
+  rtcConnection1 <-> rtcConnection2: connection established
+}
+
+P2P communication: {
+  peer1 -> rtcConnection1: request data channel
+  rtcConnection1 -> rtcConnection1: create data channel
+  rtcConnection1 -> peer1: data channel
+  rtcConnection1 -> rtcConnection2-> peer2: data channel
+  peer1 <-> peer2: p2p data communication established
+}

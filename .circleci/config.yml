@@ -1,0 +1,64 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:19.6.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm install --only=dev
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+      - run:
+          name: Run lint
+          command: npm run lint
+      - run:
+          name: Build library
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+            - package.json
+            - .releaserc.json
+
+  deploy:
+    docker:
+      - image: cimg/node:19.6.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy to npm
+          command: npx semantic-release
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          context: npm-deploy
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main

@@ -1,62 +1,49 @@
-# p2p-datachannel
+# [WIP] This is work in progress!
 
-`p2p-datachannel` is a TypeScript library that provides a wrapper for creating a simple peer-to-peer (P2P) data channel using WebRTC for the main data channel and PeerJS as a signaling channel. This library is designed to make it easy for developers to integrate peer-to-peer communication into their web applications.
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/brennervaz/p2p-data-channel/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/brennervaz/p2p-data-channel/tree/main)
+
+# p2p-data-channel
+
+`p2p-data-channel` is a TypeScript library that provides a wrapper for creating a simple peer-to-peer (P2P) data channel using WebRTC for the main data channel and PeerJS as a signaling channel. This library is designed to make it easy for developers to integrate peer-to-peer communication into their web applications.
 
 ## Installation
 
 To install the library, run the following command:
 
 ```sh
-npm install p2p-datachannel
+npm install p2p-data-channel
 ```
 
 ## Usage
 
-To use the library, import the `DataChannel` class from the `p2p-datachannel` package and create a new instance of the class:
-
 ```typescript
-import { DataChannel } from 'p2p-datachannel';
+import P2PDataChannel from "p2p-data-channel";
 
-const dataChannel = new DataChannel();
-```
+const peerId = "your-peer-id";
+const dataChannel = new P2PDataChannel(peerId);
 
-You can then use the dataChannel instance to create a peer connection and start sending data:
-
-```typescript
-dataChannel.createPeerConnection();
-dataChannel.sendData('Hello, world!');
-```
-
-You can also listen for incoming data using the onData event:
-
-```typescript
-dataChannel.onData((data) => {
-  console.log(`Received data: ${data}`);
+// Send a message
+dataChannel.send({
+  type: "chat-message",
+  payload: "Hello, world!",
 });
-```
 
-## Configuration
-
-The `DataChannel` class accepts an optional configuration object that can be used to customize the behavior of the data channel. The following options are available:
-
-- peerJSKey (string): The PeerJS API key to use for signaling (default: undefined).
-- dataChannelConfig (RTCDataChannelInit): The configuration object to use when creating the WebRTC data channel (default: {}).
-- peerConfig (Peer.PeerJSOption): The configuration object to use when creating the PeerJS instance (default: {}).
-
-Here is an example of how to configure the DataChannel instance:
-
-```typescript
-const dataChannel = new DataChannel({
-  peerJSKey: 'my-peerjs-key',
-  dataChannelConfig: {
-    ordered: true,
-    maxRetransmits: 3,
-  },
-  peerConfig: {
-    debug: 2,
-  },
+// Receive a message
+dataChannel.onMessage((message) => {
+  console.log(`Received message: ${message.payload}`);
 });
+
+// Connect to a peer
+const peerIdToConnect = "peer-id-to-connect";
+dataChannel.connect(peerIdToConnect);
+
+// Disconnect from the peer
+dataChannel.disconnect();
 ```
+
+## How it works
+
+![P2PDataChannel diagram](./docs/sequence.png)
 
 ## Contributing
 
@@ -65,3 +52,7 @@ If you find a bug or have a feature request, please open an issue on the GitHub 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Special Thanks
+
+Special thanks to ChatGPT for being an excellent copilot throughout the development of this library.

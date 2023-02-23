@@ -1,0 +1,21 @@
+{
+  "branches": [
+    "main"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    "@semantic-release/changelog",
+    "@semantic-release/github",
+    "@semantic-release/git",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "npm view $npm_package_name@$NEXT_RELEASE_VERSION",
+        "successCmd": "git add CHANGELOG.md",
+        "failCmd": "git reset --hard HEAD~1"
+      }
+    ]
+  ]
+}
