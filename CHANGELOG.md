@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.3.0...v1.3.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* generate dist with tsc and tsc-alias ([1347bfa](https://github.com/brennervaz/p2p-data-channel/commit/1347bfafd1a42b670fe955fb3542a58be18f5fdd))
+
 # [1.3.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.4...v1.3.0) (2023-02-23)
 
 
