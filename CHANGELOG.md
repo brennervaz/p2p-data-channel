@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.1.1...v1.2.0) (2023-02-23)
+
+
+### Features
+
+* sort imports with prettier ([f432665](https://github.com/brennervaz/p2p-data-channel/commit/f432665445a6d022d2e019c0882a30e06ca3a10b))
+
 ## [1.1.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.1.0...v1.1.1) (2023-02-23)
 
 
