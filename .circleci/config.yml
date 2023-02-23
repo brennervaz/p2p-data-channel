@@ -28,8 +28,6 @@ jobs:
           root: .
           paths:
             - node_modules
-            - package.json
-            - .releaserc.json
 
   deploy:
     docker:
