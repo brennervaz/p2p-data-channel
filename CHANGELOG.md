@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.4...v1.3.0) (2023-02-23)
+
+
+### Features
+
+* run prettier on pre-commit ([9617147](https://github.com/brennervaz/p2p-data-channel/commit/96171472424c287229e2d4bd98655c6d958ee70b))
+
 ## [1.2.4](https://github.com/brennervaz/p2p-data-channel/compare/v1.2.3...v1.2.4) (2023-02-23)
 
 
