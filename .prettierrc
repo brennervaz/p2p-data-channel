@@ -14,5 +14,7 @@
   "requirePragma": false,
   "insertPragma": false,
   "vueIndentScriptAndStyle": false,
-  "htmlWhitespaceSensitivity": "strict"
+  "htmlWhitespaceSensitivity": "strict",
+  "importOrder": ["^@src/(.*)$", "^[./]"],
+  "importOrderSeparation": true
 }

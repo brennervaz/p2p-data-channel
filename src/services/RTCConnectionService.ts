@@ -1,7 +1,7 @@
-import { P2PChannelMessageCallback, IP2PChannelMessage, PeerId, IRTCConnectionService, RTCEventCallback } from '@src/types'
 import ConnectionService from '@src/services/ConnectionService'
 import JsonEncodingService from '@src/services/JsonEncodingService'
 import LogService from '@src/services/LogService'
+import { P2PChannelMessageCallback, IP2PChannelMessage, PeerId, IRTCConnectionService, RTCEventCallback } from '@src/types'
 
 class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<IRTCMessagePayload> {
   private connectionService = new ConnectionService<RTCPeerConnection>()
@@ -71,7 +71,10 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
   public async setRemoteDescription(remotePeerId: PeerId, description: RTCSessionDescription): Promise<void> {
     const connection = this.connectionService.getConnection(remotePeerId)
     await connection.setRemoteDescription(description)
-    this.logService.log('set remote description', { remotePeerId, description })
+    this.logService.log('set remote description', {
+      remotePeerId,
+      description
+    })
   }
 
   public onIceCandidate(callback: RTCEventCallback<RTCPeerConnectionIceEvent>): void {
@@ -96,7 +99,10 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
   private initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): void {
     dataChannel.onopen = this.onDataChannelOpenInternalCallback(remotePeerId, dataChannel).bind(this)
     this.dataChannelService.addConnection(remotePeerId, dataChannel)
-    this.logService.debug('initiated data channel', { remotePeerId, dataChannel })
+    this.logService.debug('initiated data channel', {
+      remotePeerId,
+      dataChannel
+    })
   }
 
   private onIceCandidateInternalCallback(remotePeerId: PeerId): (event: RTCPeerConnectionIceEvent) => void {
@@ -108,7 +114,10 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
       }
 
       void this.onIceCandidateCallback(remotePeerId, event)
-      this.logService.debug('called onIceCandidateCallback with', { remotePeerId, event })
+      this.logService.debug('called onIceCandidateCallback with', {
+        remotePeerId,
+        event
+      })
     }
   }
 
@@ -126,7 +135,10 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
       }
 
       void this.onDataChannelCallback(remotePeerId, event)
-      this.logService.debug('called onDataChannelCallback with', { remotePeerId, event })
+      this.logService.debug('called onDataChannelCallback with', {
+        remotePeerId,
+        event
+      })
     }
   }
 
@@ -140,9 +152,15 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
         return
       }
       const decodedMessage = this.encodingService.decode<IRTCMessagePayload>(String(data))
-      const message: IP2PChannelMessage<IRTCMessagePayload> = { sender: remotePeerId, payload: decodedMessage }
+      const message: IP2PChannelMessage<IRTCMessagePayload> = {
+        sender: remotePeerId,
+        payload: decodedMessage
+      }
       void this.onMessageCallback(message)
-      this.logService.debug('called onMessageCallback with', { remotePeerId, event })
+      this.logService.debug('called onMessageCallback with', {
+        remotePeerId,
+        event
+      })
     }
   }
 

@@ -1,5 +1,9 @@
 import PeerJS, { DataConnection } from 'peerjs'
+
 import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
+import ConnectionService from '@src/services/ConnectionService'
+import JsonEncodingService from '@src/services/JsonEncodingService'
+import LogService from '@src/services/LogService'
 import {
   IP2PChannelMessage,
   P2PChannelMessageCallback,
@@ -8,9 +12,6 @@ import {
   ISignalingChannelService,
   ISignalingMessage
 } from '@src/types'
-import LogService from '@src/services/LogService'
-import JsonEncodingService from '@src/services/JsonEncodingService'
-import ConnectionService from '@src/services/ConnectionService'
 
 enum ChannelEventKey {
   OPEN = 'open',

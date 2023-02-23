@@ -1,5 +1,5 @@
-import { IEncodingService } from '@src/types'
 import LogService from '@src/services/LogService'
+import { IEncodingService } from '@src/types'
 
 class JsonEncodingService implements IEncodingService {
   private _logginService = new LogService(JsonEncodingService.name)

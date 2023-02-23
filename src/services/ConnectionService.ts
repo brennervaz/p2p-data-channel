@@ -1,6 +1,6 @@
 import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
-import { IConnection, IConnectionService, PeerId } from '@src/types'
 import LogService from '@src/services/LogService'
+import { IConnection, IConnectionService, PeerId } from '@src/types'
 
 class ConnectionService<IConnectionType> implements IConnectionService<IConnectionType> {
   private logService = new LogService(ConnectionService.name)

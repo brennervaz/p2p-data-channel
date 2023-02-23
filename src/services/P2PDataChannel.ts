@@ -1,3 +1,7 @@
+import { DEFAULT_DATA_CHANNEL } from '@src/config/constants'
+import LogService from '@src/services/LogService'
+import RTCConnectionService from '@src/services/RTCConnectionService'
+import SignalingChannelService from '@src/services/SignalingChannelService'
 import {
   IP2PDataChannel,
   IP2PChannelMessage,
@@ -6,10 +10,6 @@ import {
   ISignalingMessage,
   SignalingMessageType
 } from '@src/types'
-import LogService from '@src/services/LogService'
-import RTCConnectionService from '@src/services/RTCConnectionService'
-import SignalingChannelService from '@src/services/SignalingChannelService'
-import { DEFAULT_DATA_CHANNEL } from '@src/config/constants'
 
 class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessagePayload> {
   private signalingChannelService = new SignalingChannelService()
@@ -57,7 +57,10 @@ class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessageP
   }
 
   broadcast(message: IRTCMessagePayload): void {
-    const payload: IP2PChannelMessage<IRTCMessagePayload> = { sender: this.localPeerId, payload: message }
+    const payload: IP2PChannelMessage<IRTCMessagePayload> = {
+      sender: this.localPeerId,
+      payload: message
+    }
     this.rtcConnectionService.broadcast(payload)
     this.logService.log('broadcasted message', message)
   }
@@ -124,7 +127,10 @@ class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessageP
   private async onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): Promise<void> {
     if (!event.candidate) return
     await this.rtcConnectionService.addIceCandidate(remotePeerId, event.candidate)
-    this.logService.log('added ice candidate', { remotePeerId, candidate: event.candidate })
+    this.logService.log('added ice candidate', {
+      remotePeerId,
+      candidate: event.candidate
+    })
   }
 }
 
