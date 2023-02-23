@@ -4,7 +4,7 @@
     "module": "ESNext",
     "lib": ["es6", "dom"],
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
     "esModuleInterop": true,
@@ -13,8 +13,14 @@
     "baseUrl": ".",
     "paths": {
       "@src/*": ["src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "transform": "tsc-alias",
+        "afterDeclarations": true
+      }
+    ]
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

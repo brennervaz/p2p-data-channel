@@ -19,9 +19,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package-lock.json" }}
       - run:
-          name: Clean up dist folder
-          command: rm -rf dist
-      - run:
           name: Run lint
           command: npm run lint
       - run:
