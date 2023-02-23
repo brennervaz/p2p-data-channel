@@ -1,9 +1,7 @@
 import PeerJS, { DataConnection } from 'peerjs'
 
 import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
-import ConnectionService from '@src/services/ConnectionService'
-import JsonEncodingService from '@src/services/JsonEncodingService'
-import LogService from '@src/services/LogService'
+import { ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
   IP2PChannelMessage,
   P2PChannelMessageCallback,
@@ -22,7 +20,7 @@ enum ChannelEventKey {
   ERROR = 'error'
 }
 
-class SignalingChannelService implements ISignalingChannelService {
+export class SignalingChannelService implements ISignalingChannelService {
   private logService = new LogService(SignalingChannelService.name)
   private encodingService = new JsonEncodingService()
   private connectionService = new ConnectionService<DataConnection>()
@@ -111,5 +109,3 @@ class SignalingChannelService implements ISignalingChannelService {
     this.logService.debug('called onMessageCallback with', parsedData)
   }
 }
-
-export default SignalingChannelService

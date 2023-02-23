@@ -1,8 +1,8 @@
 import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
-import LogService from '@src/services/LogService'
+import { LogService } from '@src/services'
 import { IConnection, IConnectionService, PeerId } from '@src/types'
 
-class ConnectionService<IConnectionType> implements IConnectionService<IConnectionType> {
+export class ConnectionService<IConnectionType> implements IConnectionService<IConnectionType> {
   private logService = new LogService(ConnectionService.name)
   private peerConnections: IConnection<IConnectionType>[] = []
 
@@ -28,5 +28,3 @@ class ConnectionService<IConnectionType> implements IConnectionService<IConnecti
     return this.peerConnections.map(p => p.connection)
   }
 }
-
-export default ConnectionService

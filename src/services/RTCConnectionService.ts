@@ -1,9 +1,7 @@
-import ConnectionService from '@src/services/ConnectionService'
-import JsonEncodingService from '@src/services/JsonEncodingService'
-import LogService from '@src/services/LogService'
+import { ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import { P2PChannelMessageCallback, IP2PChannelMessage, PeerId, IRTCConnectionService, RTCEventCallback } from '@src/types'
 
-class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<IRTCMessagePayload> {
+export class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<IRTCMessagePayload> {
   private connectionService = new ConnectionService<RTCPeerConnection>()
   private dataChannelService = new ConnectionService<RTCDataChannel>()
   private logService = new LogService(RTCConnectionService.name)
@@ -171,5 +169,3 @@ class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<
     }
   }
 }
-
-export default RTCConnectionService

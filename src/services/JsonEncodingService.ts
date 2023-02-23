@@ -1,7 +1,7 @@
-import LogService from '@src/services/LogService'
+import { LogService } from '@src/services'
 import { IEncodingService } from '@src/types'
 
-class JsonEncodingService implements IEncodingService {
+export class JsonEncodingService implements IEncodingService {
   private _logginService = new LogService(JsonEncodingService.name)
 
   /**
@@ -31,5 +31,3 @@ class JsonEncodingService implements IEncodingService {
     }
   }
 }
-
-export default JsonEncodingService

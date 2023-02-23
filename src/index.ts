@@ -1,1 +1,1 @@
-export { default } from './services/P2PDataChannel'
+export * from './services'

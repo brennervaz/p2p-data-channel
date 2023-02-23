@@ -1,7 +1,5 @@
 import { DEFAULT_DATA_CHANNEL } from '@src/config/constants'
-import LogService from '@src/services/LogService'
-import RTCConnectionService from '@src/services/RTCConnectionService'
-import SignalingChannelService from '@src/services/SignalingChannelService'
+import { LogService, RTCConnectionService, SignalingChannelService } from '@src/services'
 import {
   IP2PDataChannel,
   IP2PChannelMessage,
@@ -11,7 +9,7 @@ import {
   SignalingMessageType
 } from '@src/types'
 
-class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessagePayload> {
+export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessagePayload> {
   private signalingChannelService = new SignalingChannelService()
   private rtcConnectionService = new RTCConnectionService<IRTCMessagePayload>()
   private logService = new LogService(P2PDataChannel.name)
@@ -133,5 +131,3 @@ class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessageP
     })
   }
 }
-
-export default P2PDataChannel

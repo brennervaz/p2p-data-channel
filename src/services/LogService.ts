@@ -1,6 +1,6 @@
 const ENV = process.env.ENV || 'development'
 
-class LogService {
+export class LogService {
   private name: string
 
   constructor(loggerName: string) {
@@ -32,5 +32,3 @@ class LogService {
     console.error(this.formatMessage(message), ...args)
   }
 }
-
-export default LogService
