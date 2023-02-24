@@ -4,7 +4,7 @@
     "module": "ESNext",
     "lib": ["es6", "dom"],
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     "outDir": "dist",
     "rootDir": "src",
     "esModuleInterop": true,
