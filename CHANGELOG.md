@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.5.0...v1.5.1) (2023-02-24)
+
+
+### Bug Fixes
+
+* store connections in map instead of array ([99b0d4e](https://github.com/brennervaz/p2p-data-channel/commit/99b0d4ea3c99ebfdaa654b83d11ea91b876731c8))
+
 # [1.5.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.4...v1.5.0) (2023-02-24)
 
 
