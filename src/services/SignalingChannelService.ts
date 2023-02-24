@@ -1,5 +1,6 @@
 import PeerJS, { DataConnection } from 'peerjs'
 
+import { CONNECTION_TIMEOUT } from '@src/config'
 import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
 import { ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
@@ -48,7 +49,7 @@ export class SignalingChannelService implements ISignalingChannelService {
 
   public async connect(remotePeerId: PeerId): Promise<void> {
     this.logService.debug('connecting', remotePeerId)
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const dataConnection = this.peerJS.connect(remotePeerId)
       this.logService.debug('data connection', dataConnection)
       dataConnection.on(ChannelEventKey.OPEN, () => {
@@ -56,6 +57,7 @@ export class SignalingChannelService implements ISignalingChannelService {
         this.connectionService.addConnection(remotePeerId, dataConnection)
         resolve()
       })
+      setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
   }
 
@@ -67,7 +69,7 @@ export class SignalingChannelService implements ISignalingChannelService {
   }
 
   public async send(remotePeerId: PeerId, payload: IP2PChannelMessage<ISignalingMessage>): Promise<void> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const dataConnection = this.connectionService.getConnection(remotePeerId)
       const encodedPayload = this.encodingService.encode(payload)
       dataConnection.on(ChannelEventKey.OPEN, () => {
@@ -75,6 +77,7 @@ export class SignalingChannelService implements ISignalingChannelService {
         this.logService.log('sent message', { remotePeerId, payload })
         resolve()
       })
+      setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
   }
 
