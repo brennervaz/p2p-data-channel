@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.4...v1.5.0) (2023-02-24)
+
+
+### Features
+
+* connection timeout ([abcd9dc](https://github.com/brennervaz/p2p-data-channel/commit/abcd9dc21e42d09922d165febf216163f5de7704))
+
 ## [1.4.4](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.3...v1.4.4) (2023-02-24)
 
 
