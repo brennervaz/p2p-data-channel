@@ -47,11 +47,13 @@ export class SignalingChannelService implements ISignalingChannelService {
   }
 
   public async connect(remotePeerId: PeerId): Promise<void> {
+    this.logService.debug('connecting', remotePeerId)
     return new Promise(resolve => {
       const dataConnection = this.peerJS.connect(remotePeerId)
+      this.logService.debug('data connection', dataConnection)
       dataConnection.on(ChannelEventKey.OPEN, () => {
-        this.connectionService.addConnection(remotePeerId, dataConnection)
         this.logService.log('connected', { remotePeerId, dataConnection })
+        this.connectionService.addConnection(remotePeerId, dataConnection)
         resolve()
       })
     })
