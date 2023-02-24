@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.3...v1.4.4) (2023-02-24)
+
+
+### Bug Fixes
+
+* target version ([ee51ab4](https://github.com/brennervaz/p2p-data-channel/commit/ee51ab4c8d4fe012547f18063f0643fef8c26a52))
+
 ## [1.4.3](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.2...v1.4.3) (2023-02-24)
 
 
