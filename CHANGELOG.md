@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.1...v1.4.2) (2023-02-24)
+
+
+### Bug Fixes
+
+* exports and barrels ([9bb86a4](https://github.com/brennervaz/p2p-data-channel/commit/9bb86a4c06f4daf807e1336f3577a67c29f3868e))
+
 ## [1.4.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.0...v1.4.1) (2023-02-24)
 
 
