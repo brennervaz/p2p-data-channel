@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.0...v1.4.1) (2023-02-24)
+
+
+### Bug Fixes
+
+* generate types with dts ([f92b576](https://github.com/brennervaz/p2p-data-channel/commit/f92b576987f3758a99a715d6a64ee6c71c822c03))
+
 # [1.4.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.3.1...v1.4.0) (2023-02-24)
 
 
