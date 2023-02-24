@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.2...v1.4.3) (2023-02-24)
+
+
+### Bug Fixes
+
+* increase log visibility ([7dac605](https://github.com/brennervaz/p2p-data-channel/commit/7dac6053896da0efde0351c0eb3517cb58ffb56e))
+
 ## [1.4.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.4.1...v1.4.2) (2023-02-24)
 
 
