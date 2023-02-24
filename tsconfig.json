@@ -12,14 +12,8 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
     },
-    "plugins": [
-      {
-        "transform": "tsc-alias",
-        "afterDeclarations": true
-      }
-    ]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
