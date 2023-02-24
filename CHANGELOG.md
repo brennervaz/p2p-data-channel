@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.3.1...v1.4.0) (2023-02-24)
+
+
+### Bug Fixes
+
+* node types ([0714861](https://github.com/brennervaz/p2p-data-channel/commit/07148619262c59fbc830050f57138444c1827793))
+
+
+### Features
+
+* add rollout ([64c19e6](https://github.com/brennervaz/p2p-data-channel/commit/64c19e6883a3d8d7dd8dd7cc405626f908576cf5))
+
 ## [1.3.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.3.0...v1.3.1) (2023-02-23)
 
 
