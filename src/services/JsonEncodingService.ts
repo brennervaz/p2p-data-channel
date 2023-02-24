@@ -26,7 +26,7 @@ export class JsonEncodingService implements IEncodingService {
     try {
       return JSON.parse(data) as T
     } catch (e) {
-      this._logginService.error(e as string)
+      this._logginService.error(e as Error)
       throw e
     }
   }

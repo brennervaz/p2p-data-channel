@@ -29,12 +29,18 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   /* PUBLIC */
 
   async connect(remotePeerId: PeerId): Promise<void> {
+    this.logService.debug('connecting signaling channel', remotePeerId)
     await this.signalingChannelService.connect(remotePeerId)
+    this.logService.debug('signaling channel connected', remotePeerId)
+    this.logService.debug('connecting rtc', remotePeerId)
     this.rtcConnectionService.connect(remotePeerId)
+    this.logService.debug('rtc connected', remotePeerId)
     await this.sendOffer(remotePeerId)
+    this.logService.log('connected', remotePeerId)
   }
 
   disconnect(remotePeerId: PeerId): void {
+    this.logService.debug('disconnecting', remotePeerId)
     this.signalingChannelService.disconnect(remotePeerId)
     this.rtcConnectionService.disconnect(remotePeerId)
     this.logService.log('disconnected', remotePeerId)
@@ -51,7 +57,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
       payload
     }
     this.rtcConnectionService.send(remotePeerId, message)
-    this.logService.log('send message', message)
+    this.logService.log('sent message', message)
   }
 
   broadcast(message: IRTCMessagePayload): void {
@@ -73,6 +79,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private async sendOffer(remotePeerId: PeerId): Promise<void> {
+    this.logService.debug('sending offer', remotePeerId)
     const offer = await this.rtcConnectionService.createOffer(remotePeerId)
     const message = this.signPayload<ISignalingMessage>({
       type: SignalingMessageType.OFFER,
@@ -83,6 +90,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private async sendAnswer(remotePeerId: PeerId, offer: RTCSessionDescriptionInit): Promise<void> {
+    this.logService.debug('sending answer', { remotePeerId, offer })
     this.rtcConnectionService.connect(remotePeerId)
     const answer = await this.rtcConnectionService.createAnswer(remotePeerId, offer)
     const message = this.signPayload<ISignalingMessage>({
@@ -94,6 +102,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private async onSignalingChannelMessage(message: IP2PChannelMessage<ISignalingMessage>): Promise<void> {
+    this.logService.debug('signaling channel message', message)
     if (message) {
       switch (message.payload.type) {
         case SignalingMessageType.OFFER:
@@ -123,6 +132,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private async onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): Promise<void> {
+    this.logService.debug('ice candidate event', event)
     if (!event.candidate) return
     await this.rtcConnectionService.addIceCandidate(remotePeerId, event.candidate)
     this.logService.log('added ice candidate', {

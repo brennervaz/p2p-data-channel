@@ -18,11 +18,13 @@ export class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionS
     connection.onicecandidate = this.onIceCandidateInternalCallback(remotePeerId).bind(this)
     connection.ondatachannel = this.onDataChannelInternalCallback(remotePeerId).bind(this)
     this.connectionService.addConnection(remotePeerId, connection)
+    this.logService.log('connected', remotePeerId)
   }
 
   public disconnect(remotePeerId: PeerId): void {
     const connection = this.connectionService.getConnection(remotePeerId)
     connection.close()
+    this.logService.log('disconnected', remotePeerId)
   }
 
   public onMessage(callback: P2PChannelMessageCallback<IRTCMessagePayload>): void {

@@ -1,5 +1,3 @@
-const ENV = process.env.ENV || 'development'
-
 export class LogService {
   private name: string
 
@@ -13,15 +11,11 @@ export class LogService {
   }
 
   public log(message: string, ...args: unknown[]): void {
-    if (ENV === 'development') {
-      console.log(this.formatMessage(message), ...args)
-    }
+    console.log(this.formatMessage(message), ...args)
   }
 
   public debug(message: string, ...args: unknown[]): void {
-    if (ENV === 'development') {
-      console.debug(this.formatMessage(message), ...args)
-    }
+    console.debug(this.formatMessage(message), ...args)
   }
 
   public warn(message: string, ...args: unknown[]): void {
