@@ -1,4 +1,13 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Stash your changes
+git stash -u
+
+# Pull the latest changes
+git pull --rebase
+
+# Reapply your changes, keeping your staged changes
+git stash apply --index
+
 npx lint-staged
