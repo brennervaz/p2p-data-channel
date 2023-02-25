@@ -1,4 +1,3 @@
-import { DEFAULT_DATA_CHANNEL } from '@src/config/constants'
 import { LogService, RTCConnectionService, SignalingChannelService } from '@src/services'
 import {
   IP2PDataChannel,
@@ -10,7 +9,7 @@ import {
 } from '@src/types'
 
 export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCMessagePayload> {
-  private signalingChannelService = new SignalingChannelService()
+  private signalingChannelService: SignalingChannelService
   private rtcConnectionService = new RTCConnectionService<IRTCMessagePayload>()
   private logService = new LogService(P2PDataChannel.name)
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
@@ -19,8 +18,9 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
 
   constructor(localPeerId: PeerId) {
     this.localPeerId = localPeerId
-    this.signalingChannelService.open(localPeerId)
+    this.signalingChannelService = new SignalingChannelService(localPeerId)
     this.signalingChannelService.onMessage(this.onSignalingChannelMessage.bind(this))
+    this.signalingChannelService.onConnectionReceived(this.onConnectionReceived.bind(this))
     this.rtcConnectionService.onIceCandidate(this.onIceCandidateInternalCallback.bind(this))
     this.rtcConnectionService.onMessage(this.onMessageInternalCallback.bind(this))
     this.logService.log('P2PDataChannel initiated')
@@ -31,10 +31,7 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   async connect(remotePeerId: PeerId): Promise<void> {
     this.logService.debug('connecting signaling channel', remotePeerId)
     await this.signalingChannelService.connect(remotePeerId)
-    this.logService.debug('signaling channel connected', remotePeerId)
-    this.logService.debug('connecting rtc', remotePeerId)
-    this.rtcConnectionService.connect(remotePeerId)
-    this.logService.debug('rtc connected', remotePeerId)
+    this.rtcConnectionService.connect(remotePeerId, true)
     await this.sendOffer(remotePeerId)
     this.logService.log('connected', remotePeerId)
   }
@@ -91,7 +88,6 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
 
   private async sendAnswer(remotePeerId: PeerId, offer: RTCSessionDescriptionInit): Promise<void> {
     this.logService.debug('sending answer', { remotePeerId, offer })
-    this.rtcConnectionService.connect(remotePeerId)
     const answer = await this.rtcConnectionService.createAnswer(remotePeerId, offer)
     const message = this.signPayload<ISignalingMessage>({
       type: SignalingMessageType.ANSWER,
@@ -99,6 +95,16 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
     })
     await this.signalingChannelService.send(remotePeerId, message)
     this.logService.log('sent answer', { remotePeerId, answer })
+  }
+
+  private async sendIceCandidate(remotePeerId: PeerId, candidate: RTCIceCandidate): Promise<void> {
+    this.logService.debug('sending ice candidate', { remotePeerId, candidate })
+    const message = this.signPayload<ISignalingMessage>({
+      type: SignalingMessageType.CANDIDATE,
+      payload: candidate
+    })
+    await this.signalingChannelService.send(remotePeerId, message)
+    this.logService.log('sent answer', { remotePeerId, candidate })
   }
 
   private async onSignalingChannelMessage(message: IP2PChannelMessage<ISignalingMessage>): Promise<void> {
@@ -112,7 +118,6 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
         case SignalingMessageType.ANSWER:
           this.logService.log('answer received', message)
           await this.rtcConnectionService.setRemoteDescription(message.sender, message.payload.payload as RTCSessionDescription)
-          this.rtcConnectionService.createDataChannel(message.sender, DEFAULT_DATA_CHANNEL)
           break
         case SignalingMessageType.CANDIDATE:
           this.logService.log('ice candidate received from', message.sender)
@@ -123,8 +128,9 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private onMessageInternalCallback(message: IP2PChannelMessage<IRTCMessagePayload>): void {
+    this.logService.debug('message internal callback', { message })
     if (!this.onMessageCallback) {
-      console.warn('onMessageCallback not set')
+      this.logService.warn('onMessageCallback not set')
       return
     }
     void this.onMessageCallback(message)
@@ -132,12 +138,15 @@ export class P2PDataChannel<IRTCMessagePayload> implements IP2PDataChannel<IRTCM
   }
 
   private async onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): Promise<void> {
-    this.logService.debug('ice candidate event', event)
+    this.logService.debug('ice candidate internal callback', { remotePeerId, event })
     if (!event.candidate) return
-    await this.rtcConnectionService.addIceCandidate(remotePeerId, event.candidate)
-    this.logService.log('added ice candidate', {
-      remotePeerId,
-      candidate: event.candidate
-    })
+    await this.sendIceCandidate(remotePeerId, event.candidate)
+    this.logService.log('ice candidate sent', { remotePeerId, candidate: event.candidate })
+  }
+
+  private onConnectionReceived(remotePeerId: PeerId) {
+    this.logService.debug('connection received', { remotePeerId })
+    this.rtcConnectionService.connect(remotePeerId)
+    this.logService.log('connected', { remotePeerId })
   }
 }

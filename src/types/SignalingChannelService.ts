@@ -6,6 +6,15 @@ export enum SignalingMessageType {
   CANDIDATE = 'candidate'
 }
 
+export enum SigalingEventKey {
+  OPEN = 'open',
+  CONNECTION = 'connection',
+  DATA = 'data',
+  CLOSE = 'close',
+  DISCONNECTED = 'disconnected',
+  ERROR = 'error'
+}
+
 export type ConnectionReceivedCallback = (remotePeerId: PeerId) => void
 
 export interface ISignalingMessage {
@@ -14,8 +23,6 @@ export interface ISignalingMessage {
 }
 
 export interface ISignalingChannelService {
-  open(localPeerId: PeerId): void
-
   close(): void
 
   connect(remotePeerId: PeerId): Promise<void>

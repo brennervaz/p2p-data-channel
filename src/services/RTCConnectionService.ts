@@ -1,5 +1,15 @@
 import { ConnectionService, JsonEncodingService, LogService } from '@src/services'
-import { P2PChannelMessageCallback, IP2PChannelMessage, PeerId, IRTCConnectionService, RTCEventCallback } from '@src/types'
+import {
+  P2PChannelMessageCallback,
+  IP2PChannelMessage,
+  PeerId,
+  IRTCConnectionService,
+  RTCEventCallback,
+  RTCEventKey,
+  RTCDataChannelEventKey
+} from '@src/types'
+
+import { DEFAULT_DATA_CHANNEL } from '..'
 
 export class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionService<IRTCMessagePayload> {
   private connectionService = new ConnectionService<RTCPeerConnection>()
@@ -9,14 +19,19 @@ export class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionS
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onIceCandidateCallback?: RTCEventCallback<RTCPeerConnectionIceEvent>
-  private onDataChannelCallback?: RTCEventCallback<RTCDataChannelEvent>
 
   /* PUBLIC */
 
-  public connect(remotePeerId: PeerId): void {
-    const connection = new RTCPeerConnection()
-    connection.onicecandidate = this.onIceCandidateInternalCallback(remotePeerId).bind(this)
-    connection.ondatachannel = this.onDataChannelInternalCallback(remotePeerId).bind(this)
+  public connect(remotePeerId: PeerId, createDataChannel = false): void {
+    this.logService.debug('connecting', { remotePeerId, createDataChannel })
+    const connection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
+    if (createDataChannel) {
+      const dataChannel = connection.createDataChannel(DEFAULT_DATA_CHANNEL)
+      this.initDataChannel(remotePeerId, dataChannel)
+      this.logService.log('data channel created', { remotePeerId, dataChannel })
+    }
+    connection.addEventListener(RTCEventKey.DATA_CHANNEL, event => this.onDataChannelInternalCallback(remotePeerId, event))
+    connection.onicecandidate = event => this.onIceCandidateInternalCallback(remotePeerId, event)
     this.connectionService.addConnection(remotePeerId, connection)
     this.logService.log('connected', remotePeerId)
   }
@@ -82,92 +97,60 @@ export class RTCConnectionService<IRTCMessagePayload> implements IRTCConnectionS
     this.logService.debug('set onIceCandidate callback')
   }
 
-  public onDataChannel(callback: RTCEventCallback<RTCDataChannelEvent>): void {
-    this.onDataChannelCallback = callback
-    this.logService.debug('set onDataChannel callback')
-  }
-
-  public createDataChannel(remotePeerId: PeerId, label: string): void {
-    const connection = this.connectionService.getConnection(remotePeerId)
-    const dataChannel = connection.createDataChannel(label)
-    this.initDataChannel(remotePeerId, dataChannel)
-    this.logService.log('created data channel')
-  }
-
   /* PRIVATE */
 
   private initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): void {
-    dataChannel.onopen = this.onDataChannelOpenInternalCallback(remotePeerId, dataChannel).bind(this)
+    dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, event =>
+      this.onDataChannelOpenInternalCallback(remotePeerId, dataChannel, event)
+    )
+    dataChannel.addEventListener(RTCDataChannelEventKey.MESSAGE, event =>
+      this.onDataChannelDataInternalCallback(remotePeerId, event)
+    )
     this.dataChannelService.addConnection(remotePeerId, dataChannel)
-    this.logService.debug('initiated data channel', {
+    this.logService.debug('data channel initiated', {
       remotePeerId,
       dataChannel
     })
   }
 
-  private onIceCandidateInternalCallback(remotePeerId: PeerId): (event: RTCPeerConnectionIceEvent) => void {
-    return event => {
-      this.logService.debug('ice candidate event', event)
-      if (!this.onIceCandidateCallback) {
-        this.logService.warn('onIceCandidateCallback not set')
-        return
-      }
+  private onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent) {
+    this.logService.debug('ice candidate event', event)
+    if (!event.candidate) return
 
-      void this.onIceCandidateCallback(remotePeerId, event)
-      this.logService.debug('called onIceCandidateCallback with', {
-        remotePeerId,
-        event
-      })
+    if (!this.onIceCandidateCallback) {
+      this.logService.warn('onIceCandidateCallback not set')
+      return
     }
+
+    void this.onIceCandidateCallback(remotePeerId, event)
+    this.logService.debug('called onIceCandidateCallback with', {
+      remotePeerId,
+      event
+    })
   }
 
-  private onDataChannelInternalCallback(remotePeerId: PeerId): (event: RTCDataChannelEvent) => void {
-    return event => {
-      this.logService.debug('data channel event', event)
-      if (!event.channel) return
+  private onDataChannelInternalCallback(remotePeerId: PeerId, event: RTCDataChannelEvent) {
+    this.logService.debug('data channel event', event)
+    if (!event.channel) return
 
-      this.initDataChannel(remotePeerId, event.channel)
-      this.logService.log('initiated data channel')
-
-      if (!this.onDataChannelCallback) {
-        this.logService.warn('onDataChannelCallback not set')
-        return
-      }
-
-      void this.onDataChannelCallback(remotePeerId, event)
-      this.logService.debug('called onDataChannelCallback with', {
-        remotePeerId,
-        event
-      })
-    }
+    this.initDataChannel(remotePeerId, event.channel)
+    this.logService.log('initiated data channel')
   }
 
-  private onDataChannelDataInternalCallback(remotePeerId: PeerId): (data: unknown) => void {
-    return data => {
-      this.logService.debug('data channel event', event)
-      if (!data) return
+  private onDataChannelDataInternalCallback(remotePeerId: PeerId, event: MessageEvent) {
+    this.logService.debug('data channel event', event)
+    if (!event.data) return
 
-      if (!this.onMessageCallback) {
-        this.logService.warn('onMessageCallback not set')
-        return
-      }
-      const decodedMessage = this.encodingService.decode<IRTCMessagePayload>(String(data))
-      const message: IP2PChannelMessage<IRTCMessagePayload> = {
-        sender: remotePeerId,
-        payload: decodedMessage
-      }
-      void this.onMessageCallback(message)
-      this.logService.debug('called onMessageCallback with', {
-        remotePeerId,
-        event
-      })
+    if (!this.onMessageCallback) {
+      this.logService.warn('onMessageCallback not set')
+      return
     }
+    const decodedMessage = this.encodingService.decode<IP2PChannelMessage<IRTCMessagePayload>>(String(event.data))
+    void this.onMessageCallback(decodedMessage)
+    this.logService.debug('called onMessageCallback with', decodedMessage)
   }
 
-  private onDataChannelOpenInternalCallback(remotePeerId: PeerId, dataChannel: RTCDataChannel): (event: Event) => void {
-    return event => {
-      this.logService.debug('data channel open event', event)
-      dataChannel.onmessage = this.onDataChannelDataInternalCallback(remotePeerId).bind(this)
-    }
+  private onDataChannelOpenInternalCallback(remotePeerId: PeerId, dataChannel: RTCDataChannel, event: Event) {
+    this.logService.debug('data channel open event', event)
   }
 }

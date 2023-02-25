@@ -9,39 +9,29 @@ import {
   PeerId,
   ConnectionReceivedCallback,
   ISignalingChannelService,
-  ISignalingMessage
+  ISignalingMessage,
+  SigalingEventKey
 } from '@src/types'
-
-enum ChannelEventKey {
-  OPEN = 'open',
-  CONNECTION = 'connection',
-  DATA = 'data',
-  CLOSE = 'close',
-  DISCONNECTED = 'disconnected',
-  ERROR = 'error'
-}
 
 export class SignalingChannelService implements ISignalingChannelService {
   private logService = new LogService(SignalingChannelService.name)
   private encodingService = new JsonEncodingService()
   private connectionService = new ConnectionService<DataConnection>()
-  private _peerJS?: PeerJS
+  private peerJS: PeerJS
   private onMessageCallback?: P2PChannelMessageCallback<ISignalingMessage>
   private onConnectionReceivedCallback?: ConnectionReceivedCallback
 
-  private get peerJS(): PeerJS {
-    if (!this._peerJS) throw new ConnectionNotEstablished('The signaling channel is not open')
-    return this._peerJS
-  }
-
-  /* PUBLIC */
-
-  public open(localPeerId: PeerId): void {
-    this._peerJS = new PeerJS(localPeerId)
-    this._peerJS.on(ChannelEventKey.CONNECTION, this.onConnectionReceivedInternalCallback.bind(this))
+  constructor(localPeerId: PeerId) {
+    this.peerJS = new PeerJS(localPeerId)
+    this.peerJS.on(SigalingEventKey.OPEN, () => {
+      this.peerJS.on(SigalingEventKey.CONNECTION, (...args) => {
+        this.onConnectionReceivedInternalCallback(...args)
+      })
+    })
     this.logService.log('signaling channel open', localPeerId)
   }
 
+  /* PUBLIC */
   public close(): void {
     this.peerJS.destroy()
     this.logService.log('signaling channel destroyed')
@@ -50,12 +40,14 @@ export class SignalingChannelService implements ISignalingChannelService {
   public async connect(remotePeerId: PeerId): Promise<void> {
     this.logService.debug('connecting', remotePeerId)
     return new Promise((resolve, reject) => {
-      const dataConnection = this.peerJS.connect(remotePeerId)
-      this.logService.debug('data connection', dataConnection)
-      dataConnection.on(ChannelEventKey.OPEN, () => {
-        this.logService.log('connected', { remotePeerId, dataConnection })
-        this.connectionService.addConnection(remotePeerId, dataConnection)
-        resolve()
+      this.peerJS.on(SigalingEventKey.OPEN, () => {
+        const dataConnection = this.peerJS.connect(remotePeerId)
+        dataConnection.on(SigalingEventKey.OPEN, () => {
+          this.logService.log('connected', { remotePeerId, dataConnection })
+          dataConnection.on(SigalingEventKey.DATA, (...args) => this.onDataInternalCallback(...args))
+          this.connectionService.addConnection(remotePeerId, dataConnection)
+          resolve()
+        })
       })
       setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
@@ -72,11 +64,9 @@ export class SignalingChannelService implements ISignalingChannelService {
     return new Promise((resolve, reject) => {
       const dataConnection = this.connectionService.getConnection(remotePeerId)
       const encodedPayload = this.encodingService.encode(payload)
-      dataConnection.on(ChannelEventKey.OPEN, () => {
-        dataConnection.send(encodedPayload)
-        this.logService.log('sent message', { remotePeerId, payload })
-        resolve()
-      })
+      dataConnection.send(encodedPayload)
+      this.logService.log('sent message', { remotePeerId, payload })
+      resolve()
       setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
   }
@@ -94,13 +84,20 @@ export class SignalingChannelService implements ISignalingChannelService {
   /* PRIVATE */
 
   private onConnectionReceivedInternalCallback(dataConnection: DataConnection): void {
-    dataConnection.on(ChannelEventKey.DATA, this.onDataInternalCallback.bind(this))
-    if (!this.onConnectionReceivedCallback) {
-      this.logService.warn('onConnectionReceivedCallback not set')
-      return
-    }
-    this.onConnectionReceivedCallback(dataConnection.peer)
-    this.logService.debug('called onConnectionReceivedCallback with', dataConnection.peer)
+    this.logService.debug('on connection received internal callback', dataConnection)
+    dataConnection.on(SigalingEventKey.OPEN, () => {
+      this.logService.debug('data connection open', { dataConnection })
+      dataConnection.on(SigalingEventKey.DATA, (...args) => {
+        this.onDataInternalCallback(...args)
+      })
+      this.connectionService.addConnection(dataConnection.peer, dataConnection)
+      if (!this.onConnectionReceivedCallback) {
+        this.logService.warn('onConnectionReceivedCallback not set')
+        return
+      }
+      this.onConnectionReceivedCallback(dataConnection.peer)
+      this.logService.debug('called onConnectionReceivedCallback with', dataConnection.peer)
+    })
   }
 
   private onDataInternalCallback(data: unknown): void {
