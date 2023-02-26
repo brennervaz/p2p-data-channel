@@ -1,3 +1,17 @@
+# [1.6.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.5.2...v1.6.0) (2023-02-26)
+
+
+### Bug Fixes
+
+* remove async ([36aeb01](https://github.com/brennervaz/p2p-data-channel/commit/36aeb012aeefc9c12fe57f865ad4313c047bcce1))
+
+
+### Features
+
+* implement try catch ([b5675ff](https://github.com/brennervaz/p2p-data-channel/commit/b5675ffc5b2796424485366788e0f0eac2b70870))
+* improve log visibility ([a1bd012](https://github.com/brennervaz/p2p-data-channel/commit/a1bd0129cc5bd2c4ff756efe5a106c4e4d249b21))
+* Logger wrapper decorator ([701e467](https://github.com/brennervaz/p2p-data-channel/commit/701e467d9952b8b6bbc89475369307b74b9cc549))
+
 ## [1.5.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.5.1...v1.5.2) (2023-02-25)
 
 
