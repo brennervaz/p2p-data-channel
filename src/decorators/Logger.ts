@@ -2,6 +2,8 @@
 
 /* eslint-disable jsdoc/require-jsdoc */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -38,14 +40,15 @@ export function logLevel(level: LogLevel): MethodDecorator {
 
 export function logger<T extends abstract new (...args: any[]) => any>(constructor: T) {
   abstract class Wrapper extends constructor {
+    logService = new LogService(this.constructor.name)
+
     constructor(...args: any[]) {
       super(args)
       this.wrapMethods()
     }
 
     public logMethodCall(logLevel: LogLevel, method: string, args: unknown, result: unknown) {
-      const logService = new LogService(this.constructor.name)
-      logService[logLevel](method, {
+      this.logService[logLevel](method, {
         arguments: args,
         result: result === undefined ? 'void' : result
       })
@@ -56,10 +59,14 @@ export function logger<T extends abstract new (...args: any[]) => any>(construct
       this[method] = (...args: unknown[]): unknown => {
         const params = getParamNames(unhookedMethod)
         const mappedArguments = params.reduce((acc, cur, i) => ({ ...acc, [cur]: args[i] }), {})
-        const result = unhookedMethod.apply(this, args)
-        const logLevel = unhookedMethod.logLevel || this.logLevel
-        this.logMethodCall(logLevel, method, mappedArguments, result)
-        return result
+        try {
+          const result = unhookedMethod.apply(this, args)
+          const logLevel = unhookedMethod.logLevel || this.logLevel
+          this.logMethodCall(logLevel, method, mappedArguments, result)
+          return result
+        } catch (e) {
+          this.logService.error(e as Error)
+        }
       }
     }
 
