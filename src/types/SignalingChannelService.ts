@@ -29,7 +29,7 @@ export interface ISignalingChannelService {
 
   disconnect(remotePeerId: PeerId): void
 
-  send(remotePeerId: PeerId, payload: IP2PChannelMessage<ISignalingMessage>): Promise<void>
+  send(remotePeerId: PeerId, payload: IP2PChannelMessage<ISignalingMessage>): void
 
   onMessage(callback: P2PChannelMessageCallback<ISignalingMessage>): void
 

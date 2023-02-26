@@ -1,4 +1,4 @@
-import ConnectionNotEstablished from '@src/exceptions/ConnectionNotEstablished'
+import { ConnectionNotEstablished } from '@src/exceptions'
 import { PeerId } from '@src/types'
 
 export interface IConnection<IConnectionType> {

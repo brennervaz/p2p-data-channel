@@ -1,8 +1,9 @@
-import { LogService } from '@src/services'
+import { LogLevel } from '@src/decorators'
+import { BaseService } from '@src/services'
 import { IEncodingService } from '@src/types'
 
-export class JsonEncodingService implements IEncodingService {
-  private _logginService = new LogService(JsonEncodingService.name)
+export class JsonEncodingService extends BaseService implements IEncodingService {
+  protected logLevel = LogLevel.DEBUG
 
   /**
    * Encodes the given data to a JSON string.
@@ -23,11 +24,6 @@ export class JsonEncodingService implements IEncodingService {
    * @returns {T} The decoded data.
    */
   public decode<T>(data: string): T {
-    try {
-      return JSON.parse(data) as T
-    } catch (e) {
-      this._logginService.error(e as Error)
-      throw e
-    }
+    return JSON.parse(data) as T
   }
 }

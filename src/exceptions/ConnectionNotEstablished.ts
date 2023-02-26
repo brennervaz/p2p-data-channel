@@ -1,4 +1,4 @@
-export default class ConnectionNotEstablished implements Error {
+export class ConnectionNotEstablished implements Error {
   name = 'connection_not_established'
   message = 'The connection is not established'
 

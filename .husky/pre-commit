@@ -1,6 +1,8 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+npx lint-staged
+
 # Stash your changes
 git stash -u
 
@@ -9,5 +11,3 @@ git pull --rebase
 
 # Reapply your changes, keeping your staged changes
 git stash apply --index
-
-npx lint-staged

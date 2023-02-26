@@ -2,17 +2,12 @@
   "name": "p2p-data-channel",
   "version": "1.5.2",
   "description": "Peer-to-peer (P2P) data channel over WebRTC and a signaling channel on the browser",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "rm -rf dist && rollup -c --bundleConfigAsCjs && dts-bundle-generator -o dist/index.d.ts ./src/index.ts",
-    "lint": "eslint --ext .ts src/",
-    "lint-watch": "esw --watch --ext .ts src/",
-    "watch": "jest --watch",
-    "test": "echo ok",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "prepare": "npm run build && husky install"
+  "author": "Brenner Vaz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brennervaz/p2p-data-channel/issues"
   },
+  "homepage": "https://github.com/brennervaz/p2p-data-channel#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brennervaz/p2p-data-channel.git"
@@ -39,12 +34,20 @@
     "real-time",
     "messaging"
   ],
-  "author": "Brenner Vaz",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/brennervaz/p2p-data-channel/issues"
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs && dts-bundle-generator -o dist/index.d.ts ./src/index.ts",
+    "lint": "eslint --ext .ts src/",
+    "lint-watch": "esw --watch --ext .ts src/",
+    "watch": "nodemon --watch src/ --ext .ts --ignore dist --exec \"npm run build\"",
+    "test": "npm run lint",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "npm run build && husky install"
   },
-  "homepage": "https://github.com/brennervaz/p2p-data-channel#readme",
+  "lint-staged": {
+    "*.ts": "prettier --write"
+  },
   "devDependencies": {
     "@rollup/plugin-alias": "^4.0.3",
     "@rollup/plugin-replace": "^5.0.2",
@@ -63,6 +66,7 @@
     "eslint-watch": "^8.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
+    "nodemon": "^2.0.20",
     "prettier": "^2.8.4",
     "rollup": "^3.17.2",
     "rollup-plugin-typescript2": "^0.34.1"
@@ -70,9 +74,5 @@
   "dependencies": {
     "peerjs": "^1.4.7",
     "uuid": "^9.0.0"
-  },
-  "lint-staged": {
-    "*.ts": "eslint --cache --fix",
-    "*.{ts,tsx}": "prettier --write"
   }
 }

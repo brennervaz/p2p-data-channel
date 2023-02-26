@@ -16,5 +16,6 @@
   "vueIndentScriptAndStyle": false,
   "htmlWhitespaceSensitivity": "strict",
   "importOrder": ["^@src/(.*)$", "^[./]"],
-  "importOrderSeparation": true
+  "importOrderSeparation": true,
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"]
 }
