@@ -86,7 +86,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.signalingChannelService.send(remotePeerId, message)
   }
 
-  private async sendIceCandidate(remotePeerId: PeerId, candidate: RTCIceCandidate): Promise<void> {
+  private sendIceCandidate(remotePeerId: PeerId, candidate: RTCIceCandidate): void {
     const message = this.signPayload<ISignalingMessage>({
       type: SignalingMessageType.CANDIDATE,
       payload: candidate
@@ -118,8 +118,8 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     void this.onMessageCallback(message)
   }
 
-  private async onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): Promise<void> {
+  private onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): void {
     if (!event.candidate) return
-    await this.sendIceCandidate(remotePeerId, event.candidate)
+    this.sendIceCandidate(remotePeerId, event.candidate)
   }
 }
