@@ -1,4 +1,5 @@
 import { DEFAULT_DATA_CHANNEL } from '@src/config'
+import { logLevel, LogLevel } from '@src/decorators'
 import { BaseService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
   P2PChannelMessageCallback,
@@ -34,10 +35,6 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
 
   public disconnect(remotePeerId: PeerId): void {
     this.connectionService.getConnection(remotePeerId).close()
-  }
-
-  public onMessage(callback: P2PChannelMessageCallback<IRTCMessagePayload>): void {
-    this.onMessageCallback = callback
   }
 
   public send(remotePeerId: PeerId, message: IP2PChannelMessage<IRTCMessagePayload>): void {
@@ -76,6 +73,12 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     await connection.setRemoteDescription(description)
   }
 
+  @logLevel(LogLevel.DEBUG)
+  public onMessage(callback: P2PChannelMessageCallback<IRTCMessagePayload>): void {
+    this.onMessageCallback = callback
+  }
+
+  @logLevel(LogLevel.DEBUG)
   public onIceCandidate(callback: RTCEventCallback<RTCPeerConnectionIceEvent>): void {
     this.onIceCandidateCallback = callback
   }

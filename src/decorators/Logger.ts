@@ -1,3 +1,16 @@
+// TODO: Enable eslint rules
+
+/* eslint-disable jsdoc/require-jsdoc */
+
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { LogService } from '@src/services'
 
 export enum LogLevel {
@@ -7,16 +20,6 @@ export enum LogLevel {
 
 type UnknownFunction = (...args: unknown[]) => unknown
 
-interface ClassPrototype {
-  [key: string]: (...args: unknown[]) => unknown
-}
-
-/**
- * Extracts the names of the parameters from the source code of a function.
- *
- * @param {UnknownFunction} fn - The function to extract the parameter names from.
- * @returns {string[]} - An array of the parameter names.
- */
 function getParamNames(fn: UnknownFunction): string[] {
   const str = fn.toString()
   const start = str.indexOf('(') + 1
@@ -26,20 +29,23 @@ function getParamNames(fn: UnknownFunction): string[] {
   return paramNames
 }
 
+export function logLevel(level: LogLevel): MethodDecorator {
+  return (target: unknown, key: unknown, descriptor: PropertyDescriptor) => {
+    descriptor.value.logLevel = level
+    return descriptor
+  }
+}
+
 export function logger<T extends abstract new (...args: any[]) => any>(constructor: T) {
   abstract class Wrapper extends constructor {
-    logLevel: LogLevel
-
     constructor(...args: any[]) {
-      super(...args)
-      const logLevel = args.find(arg => typeof arg === 'object' && String(arg) in LogLevel)
-      this.logLevel = (logLevel as LogLevel) || LogLevel.INFO
+      super(args)
       this.wrapMethods()
     }
 
-    public logMethodCall(method: string, args: unknown, result: unknown) {
+    public logMethodCall(logLevel: LogLevel, method: string, args: unknown, result: unknown) {
       const logService = new LogService(this.constructor.name)
-      logService[String(this.logLevel) as LogLevel](method, {
+      logService[logLevel](method, {
         arguments: args,
         result: result === undefined ? 'void' : result
       })
@@ -51,7 +57,8 @@ export function logger<T extends abstract new (...args: any[]) => any>(construct
         const params = getParamNames(unhookedMethod)
         const mappedArguments = params.reduce((acc, cur, i) => ({ ...acc, [cur]: args[i] }), {})
         const result = unhookedMethod.apply(this, args)
-        this.logMethodCall(method, mappedArguments, result)
+        const logLevel = unhookedMethod.logLevel || this.logLevel
+        this.logMethodCall(logLevel, method, mappedArguments, result)
         return result
       }
     }

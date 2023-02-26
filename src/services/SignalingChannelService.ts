@@ -1,6 +1,7 @@
 import PeerJS, { DataConnection } from 'peerjs'
 
 import { CONNECTION_TIMEOUT } from '@src/config'
+import { logLevel, LogLevel } from '@src/decorators'
 import { ConnectionNotEstablished } from '@src/exceptions'
 import { BaseService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
@@ -18,6 +19,7 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
   private encodingService = new JsonEncodingService()
   private connectionService = new ConnectionService<DataConnection>()
   private peerJS: PeerJS
+
   private onMessageCallback?: P2PChannelMessageCallback<ISignalingMessage>
   private onConnectionReceivedCallback?: ConnectionReceivedCallback
 
@@ -63,10 +65,12 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
     dataConnection.send(encodedPayload)
   }
 
+  @logLevel(LogLevel.DEBUG)
   public onMessage(callback: P2PChannelMessageCallback<ISignalingMessage>): void {
     this.onMessageCallback = callback
   }
 
+  @logLevel(LogLevel.DEBUG)
   public onConnectionReceived(callback: ConnectionReceivedCallback): void {
     this.onConnectionReceivedCallback = callback
   }

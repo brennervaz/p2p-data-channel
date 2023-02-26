@@ -1,3 +1,4 @@
+import { logLevel, LogLevel } from '@src/decorators'
 import { LogService, RTCConnectionService, SignalingChannelService, BaseService } from '@src/services'
 import {
   IP2PDataChannel,
@@ -9,12 +10,13 @@ import {
 } from '@src/types'
 
 export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements IP2PDataChannel<IRTCMessagePayload> {
+  public localPeerId: PeerId
+
   private signalingChannelService: SignalingChannelService
   private rtcConnectionService = new RTCConnectionService<IRTCMessagePayload>()
   private logService = new LogService(P2PDataChannel.name)
-  private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
 
-  public localPeerId: PeerId
+  private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
 
   constructor(localPeerId: PeerId, ...args: unknown[]) {
     super(args)
@@ -55,12 +57,14 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.rtcConnectionService.broadcast(payload)
   }
 
+  @logLevel(LogLevel.DEBUG)
   onMessage(callback: P2PChannelMessageCallback<IRTCMessagePayload>): void {
     this.onMessageCallback = callback
   }
 
   /* PRIVATE */
 
+  @logLevel(LogLevel.DEBUG)
   private signPayload<IMessageType>(payload: IMessageType): IP2PChannelMessage<IMessageType> {
     return {
       sender: this.localPeerId,
@@ -110,6 +114,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     }
   }
 
+  @logLevel(LogLevel.DEBUG)
   private onMessageInternalCallback(message: IP2PChannelMessage<IRTCMessagePayload>): void {
     if (!this.onMessageCallback) {
       this.logService.warn('onMessageCallback not set')
