@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.6.0...v1.7.0) (2023-02-27)
+
+
+### Features
+
+* create config ([a6f94d3](https://github.com/brennervaz/p2p-data-channel/commit/a6f94d391fdaed186ee9910eb577b5e4473aba60))
+
 # [1.6.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.5.2...v1.6.0) (2023-02-26)
 
 
