@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.1...v1.7.2) (2023-02-27)
+
+
+### Bug Fixes
+
+* minify distribution code ([e115563](https://github.com/brennervaz/p2p-data-channel/commit/e115563542be66a488ab73565900f63645f5c8e5))
+
 ## [1.7.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.0...v1.7.1) (2023-02-27)
 
 
