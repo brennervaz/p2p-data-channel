@@ -1,4 +1,10 @@
 src/
 docs/
 .circleci/
-tslint.json
+.husky
+.eslintignore
+.eslintrc.js
+.pretierrc
+.releaserc.json
+rollup.config.js
+tsconfig.json
