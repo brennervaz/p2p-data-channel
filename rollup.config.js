@@ -1,9 +1,10 @@
-import typescript from 'rollup-plugin-typescript2';
-import alias from '@rollup/plugin-alias';
-import replace from '@rollup/plugin-replace';
-import path from 'path';
+import typescript from 'rollup-plugin-typescript2'
+import alias from '@rollup/plugin-alias'
+import replace from '@rollup/plugin-replace'
+import terser from '@rollup/plugin-terser'
+import path from 'path'
 
-const resolve = (p) => path.resolve(__dirname, p);
+const resolve = (p) => path.resolve(__dirname, p)
 
 export default {
   input: resolve('src/index.ts'),
@@ -12,6 +13,7 @@ export default {
     format: 'esm'
   },
   plugins: [
+    terser(),
     typescript(),
     alias({
       entries: [
@@ -25,4 +27,4 @@ export default {
       }
     })
   ]
-};
+}
