@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.0...v1.7.1) (2023-02-27)
+
+
+### Bug Fixes
+
+* ignore unrelevant package files ([f5be325](https://github.com/brennervaz/p2p-data-channel/commit/f5be32559e2f52efddbf0ea404a86534506f7839))
+
 # [1.7.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.6.0...v1.7.0) (2023-02-27)
 
 
