@@ -1,3 +1,4 @@
+export * from './ConfigService'
 export * from './P2PDataChannel'
 export * from './ConnectionService'
 export * from './EncodingService'

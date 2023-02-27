@@ -1,12 +1,13 @@
 import { logLevel, LogLevel } from '@src/decorators'
-import { LogService, RTCConnectionService, SignalingChannelService, BaseService } from '@src/services'
+import { LogService, RTCConnectionService, SignalingChannelService, BaseService, ConfigService } from '@src/services'
 import {
   IP2PDataChannel,
   IP2PChannelMessage,
   P2PChannelMessageCallback,
   PeerId,
   ISignalingMessage,
-  SignalingMessageType
+  SignalingMessageType,
+  IConfig
 } from '@src/types'
 
 export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements IP2PDataChannel<IRTCMessagePayload> {
@@ -18,8 +19,9 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
 
-  constructor(localPeerId: PeerId, ...args: unknown[]) {
+  constructor(localPeerId: PeerId, config?: IConfig, ...args: unknown[]) {
     super(args)
+    if (config) ConfigService.fromObject(config)
     this.localPeerId = localPeerId
     this.signalingChannelService = new SignalingChannelService(localPeerId)
     this.signalingChannelService.onMessage(this.onSignalingChannelMessage.bind(this))

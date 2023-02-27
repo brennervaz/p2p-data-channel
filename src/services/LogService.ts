@@ -1,3 +1,5 @@
+import { ConfigService } from '@src/services'
+
 /**
  * A logging service that provides methods for logging messages at different levels.
  */
@@ -14,6 +16,15 @@ export class LogService {
    */
   constructor(loggerName: string) {
     this.name = loggerName
+  }
+
+  /**
+   * Checks if the log should be created.
+   *
+   * @returns {boolean} true if the log should be created
+   */
+  private shouldLog(): boolean {
+    return ConfigService.getConfig('debug')
   }
 
   /**
@@ -34,7 +45,9 @@ export class LogService {
    * @param args Optional arguments to include in the log message.
    */
   public log(message: string, ...args: unknown[]): void {
-    console.log(this.formatMessage(message), ...args)
+    if (this.shouldLog()) {
+      console.log(this.formatMessage(message), ...args)
+    }
   }
 
   /**
@@ -44,7 +57,9 @@ export class LogService {
    * @param args Optional arguments to include in the log message.
    */
   public debug(message: string, ...args: unknown[]): void {
-    console.debug(this.formatMessage(message), ...args)
+    if (this.shouldLog()) {
+      console.debug(this.formatMessage(message), ...args)
+    }
   }
 
   /**
@@ -54,7 +69,9 @@ export class LogService {
    * @param args Optional arguments to include in the log message.
    */
   public warn(message: string, ...args: unknown[]): void {
-    console.warn(this.formatMessage(message), ...args)
+    if (this.shouldLog()) {
+      console.warn(this.formatMessage(message), ...args)
+    }
   }
 
   /**
