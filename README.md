@@ -1,14 +1,11 @@
-# [WIP] This is work in progress!
-
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/brennervaz/p2p-data-channel/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/brennervaz/p2p-data-channel/tree/main)
 
 # p2p-data-channel
 
-`p2p-data-channel` is a TypeScript library that provides a wrapper for creating a simple peer-to-peer (P2P) data channel using WebRTC for the main data channel and PeerJS as a signaling channel. This library is designed to make it easy for developers to integrate peer-to-peer communication into their web applications.
+`p2p-data-channel` is a TypeScript library that simplifies the process of creating a peer-to-peer (P2P) data channel using WebRTC for the main data channel and PeerJS as a signaling channel. With this library, developers can easily add peer-to-peer communication to their web applications without having to worry about the underlying details of WebRTC or PeerJS.
 
 ## Installation
 
-To install the library, run the following command:
 
 ```sh
 npm install p2p-data-channel
@@ -17,29 +14,87 @@ npm install p2p-data-channel
 ## Usage
 
 ```typescript
-import P2PDataChannel from "p2p-data-channel";
+import P2PDataChannel from 'p2p-data-channel'
 
-const peerId = "your-peer-id";
-const dataChannel = new P2PDataChannel(peerId);
-
-// Send a message
-dataChannel.send({
-  type: "chat-message",
-  payload: "Hello, world!",
-});
+const dataChannel = new P2PDataChannel('your-peer-id')
 
 // Receive a message
 dataChannel.onMessage((message) => {
-  console.log(`Received message: ${message.payload}`);
-});
+  console.log(`Received message from ${message.sender}: ${message.payload}`)
+})
 
 // Connect to a peer
-const peerIdToConnect = "peer-id-to-connect";
-dataChannel.connect(peerIdToConnect);
+dataChannel.connect('peer-id-to-connect').then(() => {
+  // Send a message
+  dataChannel.send('peer-id-to-connect', 'Hello, world!')
+})
 
 // Disconnect from the peer
-dataChannel.disconnect();
+dataChannel.disconnect('peer-id-to-disconnect')
 ```
+
+## API
+
+### `connect(remotePeerId: PeerId): Promise<void>`
+
+Connects to the peer identified by remotePeerId.
+
+Example:
+
+```typescript
+dataChannel.connect('remote-peer-id')
+  .then(() => {
+    console.log('Connected to remote peer')
+  })
+  .catch((err) => {
+    console.error(`Error connecting to remote peer: ${err}`)
+  })
+```
+
+### `disconnect(remotePeerId: PeerId): void`
+
+Disconnects from the peer identified by remotePeerId.
+
+Example:
+
+```typescript
+dataChannel.disconnect('remote-peer-id')
+```
+
+### `onMessage(callback: P2PChannelMessageCallback<IMessagePayload>): void`
+
+Registers a callback to be called when a message is received from any peer.
+
+Example:
+
+```typescript
+dataChannel.onMessage((message) => {
+  console.log(`Received message from ${message.sender}: ${message.payload}`);
+})
+```
+
+### `send(remotePeerId: PeerId, payload: IMessagePayload): void`
+
+Sends a message to the peer identified by remotePeerId.
+
+`throws` ConnectionNotEstablished if not connected
+
+Example:
+
+```typescript
+dataChannel.send('remote-peer-id', 'Hello, world!') 
+```
+
+### `broadcast(message: IMessagePayload): void`
+
+Broadcasts a message to all connected peers.
+
+Example:
+
+```typescript
+dataChannel.broadcast('A new user has joined the chat!')
+```
+
 
 ## How it works
 
