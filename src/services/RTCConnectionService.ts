@@ -19,6 +19,7 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onIceCandidateCallback?: RTCEventCallback<RTCPeerConnectionIceEvent>
+  private onConnectedCallback?: RTCEventCallback<void>
 
   /* PUBLIC */
 
@@ -83,10 +84,15 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     this.onIceCandidateCallback = callback
   }
 
+  @logLevel(LogLevel.DEBUG)
+  public onConnected(callback: RTCEventCallback<void>): void {
+    this.onConnectedCallback = callback
+  }
+
   /* PRIVATE */
 
   private initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): void {
-    dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, this.onDataChannelOpenInternalCallback.bind(this))
+    dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, () => this.onDataChannelOpenInternalCallback(remotePeerId))
     dataChannel.addEventListener(RTCDataChannelEventKey.MESSAGE, this.onDataChannelDataInternalCallback.bind(this))
     this.dataChannelService.addConnection(remotePeerId, dataChannel)
   }
@@ -115,7 +121,11 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     this.initDataChannel(remotePeerId, event.channel)
   }
 
-  private onDataChannelOpenInternalCallback() {
-    return
+  private onDataChannelOpenInternalCallback(remotePeerId: PeerId) {
+    if (!this.onConnectedCallback) {
+      this.logService.warn('onConnectedCallback not set')
+      return
+    }
+    void this.onConnectedCallback(remotePeerId)
   }
 }

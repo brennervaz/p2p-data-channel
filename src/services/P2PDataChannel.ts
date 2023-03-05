@@ -10,6 +10,8 @@ import {
   IConfig
 } from '@src/types'
 
+import { ConnectionNotEstablished, CONNECTION_TIMEOUT } from '..'
+
 export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements IP2PDataChannel<IRTCMessagePayload> {
   public localPeerId: PeerId
 
@@ -34,8 +36,14 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
 
   async connect(remotePeerId: PeerId): Promise<void> {
     await this.signalingChannelService.connect(remotePeerId)
-    this.rtcConnectionService.connect(remotePeerId, true)
-    await this.sendOffer(remotePeerId)
+    return new Promise((resolve, reject) => {
+      this.rtcConnectionService.connect(remotePeerId, true)
+      void this.sendOffer(remotePeerId)
+      this.rtcConnectionService.onConnected(id => {
+        if (remotePeerId === id) resolve()
+      })
+      setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
+    })
   }
 
   disconnect(remotePeerId: PeerId): void {
