@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.2...v1.8.0) (2023-03-05)
+
+
+### Features
+
+* await rtc connection ([1c4d05a](https://github.com/brennervaz/p2p-data-channel/commit/1c4d05a67346afa35e080005183ba9124d74f9fc))
+
 ## [1.7.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.1...v1.7.2) (2023-02-27)
 
 
