@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.8.0...v1.8.1) (2023-03-12)
+
+
+### Bug Fixes
+
+* avoid timeout ([c1b5958](https://github.com/brennervaz/p2p-data-channel/commit/c1b5958e0249fb2ca162ea527a93708fc8bd1be8))
+
 # [1.8.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.7.2...v1.8.0) (2023-03-05)
 
 

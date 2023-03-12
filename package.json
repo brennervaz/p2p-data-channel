@@ -1,6 +1,6 @@
 {
   "name": "p2p-data-channel",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Peer-to-peer (P2P) data channel over WebRTC and a signaling channel on the browser",
   "author": "Brenner Vaz",
   "license": "MIT",
