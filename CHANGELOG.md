@@ -1,3 +1,11 @@
+## [1.9.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.1...v1.9.2) (2023-03-12)
+
+
+### Bug Fixes
+
+* clear timeout ([43485d0](https://github.com/brennervaz/p2p-data-channel/commit/43485d0998689e8da8ed04138844563855c72ac0))
+* timeout rejection ([d3b6ea5](https://github.com/brennervaz/p2p-data-channel/commit/d3b6ea59b79ec391ba5ac5c19607fbc413bf3f8b))
+
 ## [1.9.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.0...v1.9.1) (2023-03-12)
 
 
