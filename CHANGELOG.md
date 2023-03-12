@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.0...v1.9.1) (2023-03-12)
+
+
+### Bug Fixes
+
+* onConnected callback ([b22c4a4](https://github.com/brennervaz/p2p-data-channel/commit/b22c4a44be8723b4077ad64f9fad571ae862c5e4))
+
 # [1.9.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.8.1...v1.9.0) (2023-03-12)
 
 
