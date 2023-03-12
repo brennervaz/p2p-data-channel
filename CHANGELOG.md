@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.8.1...v1.9.0) (2023-03-12)
+
+
+### Features
+
+* add onConnected callback ([de426a5](https://github.com/brennervaz/p2p-data-channel/commit/de426a5e8321d8011e09c83d9ae64ce94709b1ff))
+
 ## [1.8.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.8.0...v1.8.1) (2023-03-12)
 
 
