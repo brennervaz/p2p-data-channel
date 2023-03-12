@@ -40,7 +40,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
       this.rtcConnectionService.connect(remotePeerId, true)
       void this.sendOffer(remotePeerId)
       this.rtcConnectionService.onConnected(id => {
-        if (remotePeerId === id) resolve()
+        if (remotePeerId === id) return resolve()
       })
       setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
