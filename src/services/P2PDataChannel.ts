@@ -41,10 +41,13 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     return new Promise((resolve, reject) => {
       this.rtcConnectionService.connect(remotePeerId, true)
       void this.sendOffer(remotePeerId)
+      const timeoutId = setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
       this.rtcConnectionService.onConnected(id => {
-        if (remotePeerId === id) return resolve()
+        if (remotePeerId === id) {
+          clearTimeout(timeoutId)
+          resolve()
+        }
       })
-      setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
     })
   }
 
