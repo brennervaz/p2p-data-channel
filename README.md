@@ -73,6 +73,18 @@ dataChannel.onMessage((message) => {
 })
 ```
 
+### `onConnected(callback: (remotePeerId: PeerId) => void): void`
+
+Registers a callback to be called when a peer is connected.
+
+Example:
+
+```typescript
+dataChannel.onConnected((remotePeerId) => {
+  console.log(`${remotePeerId} is connected!`);
+})
+```
+
 ### `send(remotePeerId: PeerId, payload: IMessagePayload): void`
 
 Sends a message to the peer identified by remotePeerId.

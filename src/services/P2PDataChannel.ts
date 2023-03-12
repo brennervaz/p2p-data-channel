@@ -20,6 +20,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
   private logService = new LogService(P2PDataChannel.name)
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
+  private onConnected?: (remotePeerId: string) => void
 
   constructor(localPeerId: PeerId, config?: IConfig, ...args: unknown[]) {
     super(args)
@@ -29,6 +30,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.signalingChannelService.onMessage(this.onSignalingChannelMessage.bind(this))
     this.rtcConnectionService.onIceCandidate(this.onIceCandidateInternalCallback.bind(this))
     this.rtcConnectionService.onMessage(this.onMessageInternalCallback.bind(this))
+    this.rtcConnectionService.onConnected(this.onConnectedInternalCallback.bind(this))
     this.signalingChannelService.onConnectionReceived((...args) => this.rtcConnectionService.connect(...args))
   }
 
@@ -131,6 +133,15 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
       return
     }
     void this.onMessageCallback(message)
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private onConnectedInternalCallback(remotePeerId: PeerId): void {
+    if (!this.onConnected) {
+      this.logService.warn('onConnected not set')
+      return
+    }
+    void this.onConnected(remotePeerId)
   }
 
   private onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): void {
