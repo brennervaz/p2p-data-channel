@@ -1,3 +1,11 @@
+# [1.10.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.2...v1.10.0) (2023-03-15)
+
+
+### Features
+
+* onDisconnected ([484b3bf](https://github.com/brennervaz/p2p-data-channel/commit/484b3bf5f908c26b30cc3f79cdf9caa9d9610dea))
+* ping sequence ([741b08f](https://github.com/brennervaz/p2p-data-channel/commit/741b08ff99f4770580ed10e27fa1090aed56086d))
+
 ## [1.9.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.1...v1.9.2) (2023-03-12)
 
 
