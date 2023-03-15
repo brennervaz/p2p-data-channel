@@ -19,6 +19,7 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   private logService = new LogService(RTCConnectionService.name)
   private encodingService = new JsonEncodingService()
   private timeoutChecks: ConnectionTimeoutCheck = new Map()
+  private pingIntervals: ConnectionTimeoutCheck = new Map()
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onIceCandidateCallback?: RTCEventCallback<RTCPeerConnectionIceEvent>
@@ -46,6 +47,8 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   public disconnect(remotePeerId: PeerId): void {
     this.connectionService.getConnection(remotePeerId).close()
     this.connectionService.removeConnection(remotePeerId)
+    const pingInterval = this.pingIntervals.get(remotePeerId)
+    if (pingInterval) clearInterval(pingInterval)
     if (!this.onDisconnectedCallback) {
       this.logService.warn('onDisconnectedCallback not set')
       return
@@ -148,6 +151,7 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     void this.onIceCandidateCallback(remotePeerId, event)
   }
 
+  @logLevel(LogLevel.DEBUG)
   private onDataChannelInternalCallback(remotePeerId: PeerId, event: RTCDataChannelEvent) {
     if (!event.channel) return
     this.initDataChannel(remotePeerId, event.channel)
@@ -155,11 +159,12 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
 
   @logLevel(LogLevel.DEBUG)
   private onDataChannelOpenInternalCallback(remotePeerId: PeerId) {
-    setInterval(() => {
+    const pingInterval = setInterval(() => {
       this.send(remotePeerId, 'ping' as IRTCMessagePayload)
       const timeoutId = setTimeout(() => this.disconnect(remotePeerId), PING_INTERVAL * 2)
       this.timeoutChecks.set(remotePeerId, Number(timeoutId))
     }, PING_INTERVAL)
+    this.pingIntervals.set(remotePeerId, Number(pingInterval))
     if (!this.onConnectedCallback) {
       this.logService.warn('onConnectedCallback not set')
       return
