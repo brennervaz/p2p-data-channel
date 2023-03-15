@@ -50,4 +50,8 @@ export interface IRTCConnectionService<IRTCMessagePayload> {
   onMessage(callback: P2PChannelMessageCallback<IRTCMessagePayload>): void
 
   onIceCandidate(callback: RTCEventCallback<RTCPeerConnectionIceEvent>): void
+
+  onConnected(callback: RTCEventCallback<void>): void
+
+  onDisconnected(callback: RTCEventCallback<void>): void
 }

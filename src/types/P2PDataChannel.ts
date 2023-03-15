@@ -16,6 +16,8 @@ export interface IP2PDataChannel<IMessagePayload> {
 
   onConnected(callback: (remotePeerId: PeerId) => void): void
 
+  onDisconnected(callback: (remotePeerId: PeerId) => void): void
+
   send(remotePeerId: PeerId, payload: IMessagePayload): void
 
   broadcast(message: IMessagePayload): void

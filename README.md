@@ -85,6 +85,18 @@ dataChannel.onConnected((remotePeerId) => {
 })
 ```
 
+### `onDisconnected(callback: (remotePeerId: PeerId) => void): void`
+
+Registers a callback to be called when a peer is disconnected.
+
+Example:
+
+```typescript
+dataChannel.onDisconnected((remotePeerId) => {
+  console.log(`${remotePeerId} disconnected!`);
+})
+```
+
 ### `send(remotePeerId: PeerId, payload: IMessagePayload): void`
 
 Sends a message to the peer identified by remotePeerId.

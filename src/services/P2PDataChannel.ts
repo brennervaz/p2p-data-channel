@@ -21,6 +21,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onConnectedCallback?: (remotePeerId: PeerId) => void
+  private onDisconnectedCallback?: (remotePeerId: PeerId) => void
 
   constructor(localPeerId: PeerId, config?: IConfig, ...args: unknown[]) {
     super(args)
@@ -32,6 +33,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.rtcConnectionService.onIceCandidate(this.onIceCandidateInternalCallback.bind(this))
     this.rtcConnectionService.onMessage(this.onMessageInternalCallback.bind(this))
     this.rtcConnectionService.onConnected(this.onConnectedInternalCallback.bind(this))
+    this.rtcConnectionService.onDisconnected(this.onDisconnectedInternalCallback.bind(this))
     this.signalingChannelService.onConnectionReceived((...args) => this.rtcConnectionService.connect(...args))
   }
 
@@ -73,6 +75,11 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
   @logLevel(LogLevel.DEBUG)
   onConnected(callback: (remotePeerId: PeerId) => void): void {
     this.onConnectedCallback = callback
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  onDisconnected(callback: (remotePeerId: PeerId) => void): void {
+    this.onDisconnectedCallback = callback
   }
 
   /* PRIVATE */
@@ -137,6 +144,16 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     void this.onConnectedCallback(remotePeerId)
   }
 
+  @logLevel(LogLevel.DEBUG)
+  private onDisconnectedInternalCallback(remotePeerId: PeerId): void {
+    if (!this.onDisconnectedCallback) {
+      this.logService.warn('onDisconnected not set')
+      return
+    }
+    void this.onDisconnectedCallback(remotePeerId)
+  }
+
+  @logLevel(LogLevel.DEBUG)
   private onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent): void {
     if (!event.candidate) return
     this.sendIceCandidate(remotePeerId, event.candidate)
