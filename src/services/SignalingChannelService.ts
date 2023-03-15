@@ -41,7 +41,7 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
 
   public async connect(remotePeerId: PeerId): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => reject(new ConnectionNotEstablished('timeout')), CONNECTION_TIMEOUT)
+      const timeoutId = setTimeout(() => reject(new ConnectionNotEstablished('Signaling timeout')), CONNECTION_TIMEOUT)
       this.peerJS.on(SigalingEventKey.OPEN, () => {
         const dataConnection = this.peerJS.connect(remotePeerId)
         dataConnection.on(SigalingEventKey.OPEN, () => {
