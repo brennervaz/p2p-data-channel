@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.0...v1.10.1) (2023-03-15)
+
+
+### Bug Fixes
+
+* stop ping interval on disconnection ([8f7301b](https://github.com/brennervaz/p2p-data-channel/commit/8f7301bb125efb601b74dadf7c29f9202266ac7a))
+
 # [1.10.0](https://github.com/brennervaz/p2p-data-channel/compare/v1.9.2...v1.10.0) (2023-03-15)
 
 
