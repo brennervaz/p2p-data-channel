@@ -1,4 +1,4 @@
-import { DEFAULT_DATA_CHANNEL } from '@src/config'
+import { DEFAULT_DATA_CHANNEL, PING_INTERVAL } from '@src/config'
 import { logLevel, LogLevel } from '@src/decorators'
 import { BaseService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
@@ -8,7 +8,8 @@ import {
   IRTCConnectionService,
   RTCEventCallback,
   RTCEventKey,
-  RTCDataChannelEventKey
+  RTCDataChannelEventKey,
+  ConnectionTimeoutCheck
 } from '@src/types'
 
 export class RTCConnectionService<IRTCMessagePayload> extends BaseService implements IRTCConnectionService<IRTCMessagePayload> {
@@ -17,6 +18,7 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   private dataChannelService = new ConnectionService<RTCDataChannel>()
   private logService = new LogService(RTCConnectionService.name)
   private encodingService = new JsonEncodingService()
+  private timeoutChecks: ConnectionTimeoutCheck = new Map()
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onIceCandidateCallback?: RTCEventCallback<RTCPeerConnectionIceEvent>
@@ -98,12 +100,14 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
 
   /* PRIVATE */
 
+  @logLevel(LogLevel.DEBUG)
   private initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): void {
     dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, () => this.onDataChannelOpenInternalCallback(remotePeerId))
     dataChannel.addEventListener(RTCDataChannelEventKey.MESSAGE, this.onDataChannelDataInternalCallback.bind(this))
     this.dataChannelService.addConnection(remotePeerId, dataChannel)
   }
 
+  @logLevel(LogLevel.DEBUG)
   private onDataChannelDataInternalCallback(event: MessageEvent) {
     if (!event.data) return
     if (!this.onMessageCallback) {
@@ -111,9 +115,18 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
       return
     }
     const decodedMessage = this.encodingService.decode<IP2PChannelMessage<IRTCMessagePayload>>(String(event.data))
+    if (decodedMessage.payload === 'ping') {
+      return this.send(decodedMessage.sender, 'pong' as IRTCMessagePayload)
+    }
+    if (decodedMessage.payload === 'pong') {
+      const timeoutCheck = this.timeoutChecks.get(decodedMessage.sender)
+      if (timeoutCheck) clearTimeout(timeoutCheck)
+      return
+    }
     void this.onMessageCallback(decodedMessage)
   }
 
+  @logLevel(LogLevel.DEBUG)
   private onIceCandidateInternalCallback(remotePeerId: PeerId, event: RTCPeerConnectionIceEvent) {
     if (!event.candidate) return
     if (!this.onIceCandidateCallback) {
@@ -128,7 +141,13 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     this.initDataChannel(remotePeerId, event.channel)
   }
 
+  @logLevel(LogLevel.DEBUG)
   private onDataChannelOpenInternalCallback(remotePeerId: PeerId) {
+    setInterval(() => {
+      this.send(remotePeerId, 'ping' as IRTCMessagePayload)
+      const timeoutId = setTimeout(() => this.connectionService.removeConnection(remotePeerId), PING_INTERVAL * 2)
+      this.timeoutChecks.set(remotePeerId, Number(timeoutId))
+    }, PING_INTERVAL)
     if (!this.onConnectedCallback) {
       this.logService.warn('onConnectedCallback not set')
       return

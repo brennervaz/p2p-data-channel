@@ -1,4 +1,4 @@
-import { IP2PChannelMessage, P2PChannelMessageCallback, PeerId } from '@src/types'
+import { P2PChannelMessageCallback, PeerId } from '@src/types'
 
 export enum SignalingMessageType {
   OFFER = 'offer',

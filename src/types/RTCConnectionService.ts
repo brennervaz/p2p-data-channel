@@ -1,4 +1,4 @@
-import { IP2PChannelMessage, P2PChannelMessageCallback, PeerId } from '@src/types'
+import { P2PChannelMessageCallback, PeerId } from '@src/types'
 
 export enum RTCEventKey {
   CONNECTION_STATE_CHANGED = 'connectionstatechange',
@@ -27,6 +27,8 @@ export interface IPeer {
   peerId: PeerId
   rtcConnection: RTCPeerConnection
 }
+
+export type ConnectionTimeoutCheck = Map<PeerId, number>
 
 export interface IRTCConnectionService<IRTCMessagePayload> {
   connect(remotePeerId: PeerId): void
