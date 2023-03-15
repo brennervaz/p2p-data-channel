@@ -12,6 +12,7 @@ import {
 } from '@src/types'
 
 export class RTCConnectionService<IRTCMessagePayload> extends BaseService implements IRTCConnectionService<IRTCMessagePayload> {
+  public localPeerId: PeerId
   private connectionService = new ConnectionService<RTCPeerConnection>()
   private dataChannelService = new ConnectionService<RTCDataChannel>()
   private logService = new LogService(RTCConnectionService.name)
@@ -20,6 +21,11 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
   private onIceCandidateCallback?: RTCEventCallback<RTCPeerConnectionIceEvent>
   private onConnectedCallback?: RTCEventCallback<void>
+
+  constructor(localPeerId: PeerId, ...args: unknown[]) {
+    super(args)
+    this.localPeerId = localPeerId
+  }
 
   /* PUBLIC */
 
@@ -38,14 +44,15 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     this.connectionService.getConnection(remotePeerId).close()
   }
 
-  public send(remotePeerId: PeerId, message: IP2PChannelMessage<IRTCMessagePayload>): void {
+  public send(remotePeerId: PeerId, payload: IRTCMessagePayload): void {
     const connection = this.dataChannelService.getConnection(remotePeerId)
+    const message: IP2PChannelMessage<IRTCMessagePayload> = { sender: this.localPeerId, payload }
     const encodedMessage = this.encodingService.encode(message)
     connection.send(encodedMessage)
   }
 
-  public broadcast(message: IP2PChannelMessage<IRTCMessagePayload>): void {
-    const encodedMessage = this.encodingService.encode(message)
+  public broadcast(payload: IRTCMessagePayload): void {
+    const encodedMessage = this.encodingService.encode(payload)
     this.dataChannelService.getAll().forEach(dataChannel => dataChannel.send(encodedMessage))
   }
 

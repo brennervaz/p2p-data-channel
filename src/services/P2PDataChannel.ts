@@ -16,7 +16,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
   public localPeerId: PeerId
 
   private signalingChannelService: SignalingChannelService
-  private rtcConnectionService = new RTCConnectionService<IRTCMessagePayload>()
+  private rtcConnectionService: RTCConnectionService<IRTCMessagePayload>
   private logService = new LogService(P2PDataChannel.name)
 
   private onMessageCallback?: P2PChannelMessageCallback<IRTCMessagePayload>
@@ -28,6 +28,7 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.localPeerId = localPeerId
     this.signalingChannelService = new SignalingChannelService(localPeerId)
     this.signalingChannelService.onMessage(this.onSignalingChannelMessage.bind(this))
+    this.rtcConnectionService = new RTCConnectionService(this.localPeerId)
     this.rtcConnectionService.onIceCandidate(this.onIceCandidateInternalCallback.bind(this))
     this.rtcConnectionService.onMessage(this.onMessageInternalCallback.bind(this))
     this.rtcConnectionService.onConnected(this.onConnectedInternalCallback.bind(this))
@@ -57,19 +58,11 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
   }
 
   send(remotePeerId: PeerId, payload: IRTCMessagePayload): void {
-    const message = {
-      sender: this.localPeerId,
-      payload
-    }
-    this.rtcConnectionService.send(remotePeerId, message)
+    this.rtcConnectionService.send(remotePeerId, payload)
   }
 
   broadcast(message: IRTCMessagePayload): void {
-    const payload: IP2PChannelMessage<IRTCMessagePayload> = {
-      sender: this.localPeerId,
-      payload: message
-    }
-    this.rtcConnectionService.broadcast(payload)
+    this.rtcConnectionService.broadcast(message)
   }
 
   @logLevel(LogLevel.DEBUG)
@@ -84,37 +77,29 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
 
   /* PRIVATE */
 
-  @logLevel(LogLevel.DEBUG)
-  private signPayload<IMessageType>(payload: IMessageType): IP2PChannelMessage<IMessageType> {
-    return {
-      sender: this.localPeerId,
-      payload
-    }
-  }
-
   private async sendOffer(remotePeerId: PeerId): Promise<void> {
     const offer = await this.rtcConnectionService.createOffer(remotePeerId)
-    const message = this.signPayload<ISignalingMessage>({
+    const message: ISignalingMessage = {
       type: SignalingMessageType.OFFER,
       payload: offer
-    })
+    }
     this.signalingChannelService.send(remotePeerId, message)
   }
 
   private async sendAnswer(remotePeerId: PeerId, offer: RTCSessionDescriptionInit): Promise<void> {
     const answer = await this.rtcConnectionService.createAnswer(remotePeerId, offer)
-    const message = this.signPayload<ISignalingMessage>({
+    const message: ISignalingMessage = {
       type: SignalingMessageType.ANSWER,
       payload: answer
-    })
+    }
     this.signalingChannelService.send(remotePeerId, message)
   }
 
   private sendIceCandidate(remotePeerId: PeerId, candidate: RTCIceCandidate): void {
-    const message = this.signPayload<ISignalingMessage>({
+    const message: ISignalingMessage = {
       type: SignalingMessageType.CANDIDATE,
       payload: candidate
-    })
+    }
     this.signalingChannelService.send(remotePeerId, message)
   }
 

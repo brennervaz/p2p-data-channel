@@ -33,9 +33,9 @@ export interface IRTCConnectionService<IRTCMessagePayload> {
 
   disconnect(remotePeerId: PeerId): void
 
-  send(remotePeerId: PeerId, message: IP2PChannelMessage<IRTCMessagePayload>): void
+  send(remotePeerId: PeerId, payload: IRTCMessagePayload): void
 
-  broadcast(message: IP2PChannelMessage<IRTCMessagePayload>): void
+  broadcast(payload: IRTCMessagePayload): void
 
   createOffer(remotePeerId: PeerId): Promise<RTCSessionDescriptionInit>
 

@@ -15,6 +15,7 @@ import {
 } from '@src/types'
 
 export class SignalingChannelService extends BaseService implements ISignalingChannelService {
+  public localPeerId: PeerId
   private logService = new LogService(SignalingChannelService.name)
   private encodingService = new JsonEncodingService()
   private connectionService = new ConnectionService<DataConnection>()
@@ -25,6 +26,7 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
 
   constructor(localPeerId: PeerId, ...args: unknown[]) {
     super(args)
+    this.localPeerId = localPeerId
     this.peerJS = new PeerJS(localPeerId)
     this.peerJS.on(SigalingEventKey.OPEN, () => {
       this.peerJS.on(SigalingEventKey.CONNECTION, (...args) => {
@@ -60,8 +62,9 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
     this.connectionService.removeConnection(remotePeerId)
   }
 
-  public send(remotePeerId: PeerId, payload: IP2PChannelMessage<ISignalingMessage>): void {
+  public send(remotePeerId: PeerId, message: ISignalingMessage): void {
     const dataConnection = this.connectionService.getConnection(remotePeerId)
+    const payload: IP2PChannelMessage<ISignalingMessage> = { sender: this.localPeerId, payload: message }
     const encodedPayload = this.encodingService.encode(payload)
     dataConnection.send(encodedPayload)
   }
