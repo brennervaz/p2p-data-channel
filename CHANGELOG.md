@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.1...v1.10.2) (2023-03-16)
+
+
+### Bug Fixes
+
+* increase ping interval ([5c24cd2](https://github.com/brennervaz/p2p-data-channel/commit/5c24cd2cc773e12c96beec66299b7ac93dca6f8e))
+
 ## [1.10.1](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.0...v1.10.1) (2023-03-15)
 
 
