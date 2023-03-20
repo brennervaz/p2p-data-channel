@@ -1,3 +1,10 @@
+## [1.10.7](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.6...v1.10.7) (2023-03-20)
+
+
+### Bug Fixes
+
+* increase intervals ([2f41430](https://github.com/brennervaz/p2p-data-channel/commit/2f4143029db3b49ea6cc462a8c26d594d96728c7))
+
 ## [1.10.6](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.5...v1.10.6) (2023-03-20)
 
 
