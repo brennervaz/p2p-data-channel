@@ -66,7 +66,8 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   }
 
   public broadcast(payload: IRTCMessagePayload): void {
-    const encodedMessage = this.encodingService.encode(payload)
+    const message: IP2PChannelMessage<IRTCMessagePayload> = { sender: this.localPeerId, payload }
+    const encodedMessage = this.encodingService.encode(message)
     this.dataChannelService.getAll().forEach(dataChannel => dataChannel.send(encodedMessage))
   }
 
