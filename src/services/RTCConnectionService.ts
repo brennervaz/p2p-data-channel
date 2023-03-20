@@ -161,9 +161,9 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     const pingInterval = setInterval(() => {
       this.send(remotePeerId, 'ping' as IRTCMessagePayload)
       const timeoutId = setTimeout(() => this.disconnect(remotePeerId), PING_INTERVAL * 3)
-      this.timeoutChecks.set(remotePeerId, Number(timeoutId))
+      this.timeoutChecks.set(remotePeerId, timeoutId)
     }, PING_INTERVAL)
-    this.pingIntervals.set(remotePeerId, Number(pingInterval))
+    this.pingIntervals.set(remotePeerId, pingInterval)
     if (!this.onConnectedCallback) {
       this.logService.warn('onConnectedCallback not set')
       return
