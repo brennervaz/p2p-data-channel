@@ -21,8 +21,8 @@ const config = {
   debug: false, // output every method call to console
   dataChannel: 'default', // name of the data channel to be open
   connectionTimeout: 5000, // timeout to consider connection failure on init
-  pingInterval: 3000, // interval for each ping/pong
-  pingTimeout: 6000, // timeout to consider disconnection on ping/pong
+  pingInterval: 4000, // interval for each ping/pong
+  pingTimeout: 8000, // timeout to consider disconnection on ping/pong
 }
 
 const dataChannel = new P2PDataChannel('your-peer-id', config) // config is optional
