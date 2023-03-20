@@ -45,8 +45,7 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   }
 
   public disconnect(remotePeerId: PeerId): void {
-    const pingInterval = this.pingIntervals.get(remotePeerId)
-    if (pingInterval) clearInterval(pingInterval)
+    this.clearPingSequence(remotePeerId)
     this.connectionService.removeConnection(remotePeerId)
     if (!this.onDisconnectedCallback) {
       this.logService.warn('onDisconnectedCallback not set')
@@ -169,5 +168,19 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
       return
     }
     void this.onConnectedCallback(remotePeerId)
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private clearPingSequence(remotePeerId: PeerId) {
+    const pingInterval = this.pingIntervals.get(remotePeerId)
+    const timeoutCheck = this.timeoutChecks.get(remotePeerId)
+    if (pingInterval) {
+      clearInterval(pingInterval)
+      this.pingIntervals.delete(remotePeerId)
+    }
+    if (timeoutCheck) {
+      clearTimeout(timeoutCheck)
+      this.timeoutChecks.delete(remotePeerId)
+    }
   }
 }
