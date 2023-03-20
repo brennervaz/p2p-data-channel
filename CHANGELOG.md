@@ -1,3 +1,10 @@
+## [1.10.5](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.4...v1.10.5) (2023-03-20)
+
+
+### Bug Fixes
+
+* connect without waiting for open event ([40069f5](https://github.com/brennervaz/p2p-data-channel/commit/40069f562cd220abca7e6bdb37cff3d068c6e7af))
+
 ## [1.10.4](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.3...v1.10.4) (2023-03-20)
 
 
