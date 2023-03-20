@@ -1,3 +1,10 @@
+## [1.10.3](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.2...v1.10.3) (2023-03-20)
+
+
+### Bug Fixes
+
+* remove signaling timeout ([8741c98](https://github.com/brennervaz/p2p-data-channel/commit/8741c9857cbecfedf223aa046464e421c5094c12))
+
 ## [1.10.2](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.1...v1.10.2) (2023-03-16)
 
 
