@@ -1,9 +1,21 @@
+export enum ConfigKey {
+  debug = 'debug',
+  dataChannel = 'dataChannel',
+  connectionTimeout = 'connectionTimeout',
+  pingInterval = 'pingInterval',
+  pingTimeout = 'pingTimeout'
+}
+
 export interface IConfig {
-  debug: boolean
+  [ConfigKey.debug]: boolean
+  [ConfigKey.dataChannel]: string
+  [ConfigKey.connectionTimeout]: number
+  [ConfigKey.pingInterval]: number
+  [ConfigKey.pingTimeout]: number
 }
 
 export interface IConfigService {
-  fromObject(config: IConfig): void
+  fromObject(config?: Partial<IConfig>): void
 
   setConfig<ConfigValueType>(key: keyof IConfig, value: ConfigValueType): void
 

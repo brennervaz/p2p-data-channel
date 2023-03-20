@@ -1,5 +1,7 @@
 import { ConfigService } from '@src/services'
 
+import { ConfigKey } from '..'
+
 /**
  * A logging service that provides methods for logging messages at different levels.
  */
@@ -24,7 +26,7 @@ export class LogService {
    * @returns {boolean} true if the log should be created
    */
   private shouldLog(): boolean {
-    return ConfigService.getConfig('debug')
+    return ConfigService.getConfig(ConfigKey.debug)
   }
 
   /**

@@ -1,8 +1,6 @@
 import PeerJS, { DataConnection } from 'peerjs'
 
-import { CONNECTION_TIMEOUT } from '@src/config'
 import { logLevel, LogLevel } from '@src/decorators'
-import { ConnectionNotEstablished } from '@src/exceptions'
 import { BaseService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
   IP2PChannelMessage,
@@ -42,12 +40,16 @@ export class SignalingChannelService extends BaseService implements ISignalingCh
   }
 
   public async connect(remotePeerId: PeerId): Promise<void> {
-    return new Promise(resolve => {
-      const dataConnection = this.peerJS.connect(remotePeerId)
-      dataConnection.on(SigalingEventKey.OPEN, () => {
-        dataConnection.on(SigalingEventKey.DATA, (...args) => this.onDataInternalCallback(...args))
-        this.connectionService.addConnection(remotePeerId, dataConnection)
-        resolve()
+    return new Promise((resolve, reject) => {
+      this.peerJS.on(SigalingEventKey.ERROR, reject)
+      this.peerJS.on(SigalingEventKey.OPEN, () => {
+        const dataConnection = this.peerJS.connect(remotePeerId)
+        dataConnection.on(SigalingEventKey.ERROR, reject)
+        dataConnection.on(SigalingEventKey.OPEN, () => {
+          dataConnection.on(SigalingEventKey.DATA, this.onDataInternalCallback.bind(this))
+          this.connectionService.addConnection(remotePeerId, dataConnection)
+          resolve()
+        })
       })
     })
   }

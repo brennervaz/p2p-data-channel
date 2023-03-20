@@ -7,10 +7,11 @@ import {
   PeerId,
   ISignalingMessage,
   SignalingMessageType,
-  IConfig
+  IConfig,
+  ConfigKey
 } from '@src/types'
 
-import { ConnectionNotEstablished, CONNECTION_TIMEOUT } from '..'
+import { ConnectionNotEstablished } from '..'
 
 export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements IP2PDataChannel<IRTCMessagePayload> {
   public localPeerId: PeerId
@@ -23,9 +24,9 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
   private onConnectedCallback?: (remotePeerId: PeerId) => void
   private onDisconnectedCallback?: (remotePeerId: PeerId) => void
 
-  constructor(localPeerId: PeerId, config?: IConfig, ...args: unknown[]) {
+  constructor(localPeerId: PeerId, config?: Partial<IConfig>, ...args: unknown[]) {
     super(args)
-    if (config) ConfigService.fromObject(config)
+    ConfigService.fromObject(config)
     this.localPeerId = localPeerId
     this.signalingChannelService = new SignalingChannelService(localPeerId)
     this.signalingChannelService.onMessage(this.onSignalingChannelMessage.bind(this))
@@ -34,23 +35,25 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
     this.rtcConnectionService.onMessage(this.onMessageInternalCallback.bind(this))
     this.rtcConnectionService.onConnected(this.onConnectedInternalCallback.bind(this))
     this.rtcConnectionService.onDisconnected(this.onDisconnectedInternalCallback.bind(this))
-    this.signalingChannelService.onConnectionReceived((...args) => this.rtcConnectionService.connect(...args))
+    this.signalingChannelService.onConnectionReceived(this.onConnectionReceivedInternalCallback.bind(this))
   }
 
   /* PUBLIC */
 
   async connect(remotePeerId: PeerId): Promise<void> {
-    await this.signalingChannelService.connect(remotePeerId)
     return new Promise((resolve, reject) => {
-      this.rtcConnectionService.connect(remotePeerId, true)
-      void this.sendOffer(remotePeerId)
-      const timeoutId = setTimeout(() => reject(new ConnectionNotEstablished('RTC timeout')), CONNECTION_TIMEOUT)
-      this.rtcConnectionService.onConnected(id => {
-        if (remotePeerId === id) {
-          clearTimeout(timeoutId)
-          resolve()
-        }
-      })
+      const connectionTimeout = setTimeout(
+        () => reject(new ConnectionNotEstablished('RTC timeout')),
+        ConfigService.getConfig(ConfigKey.connectionTimeout)
+      )
+      this.signalingChannelService
+        .connect(remotePeerId)
+        .then(() => {
+          clearTimeout(connectionTimeout)
+          resolve(this.rtcConnectionService.connect(remotePeerId, true).catch(reject))
+          void this.sendOffer(remotePeerId)
+        })
+        .catch(reject)
     })
   }
 
@@ -151,6 +154,14 @@ export class P2PDataChannel<IRTCMessagePayload> extends BaseService implements I
       return
     }
     void this.onDisconnectedCallback(remotePeerId)
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private onConnectionReceivedInternalCallback(remotePeerId: PeerId): void {
+    this.rtcConnectionService
+      .connect(remotePeerId, false)
+      .then(() => this.onConnectedInternalCallback(remotePeerId))
+      .catch((e: Error) => this.logService.error(e))
   }
 
   @logLevel(LogLevel.DEBUG)

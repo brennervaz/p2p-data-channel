@@ -1,6 +1,5 @@
-import { DEFAULT_DATA_CHANNEL, PING_INTERVAL } from '@src/config'
 import { logLevel, LogLevel } from '@src/decorators'
-import { BaseService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
+import { BaseService, ConfigService, ConnectionService, JsonEncodingService, LogService } from '@src/services'
 import {
   P2PChannelMessageCallback,
   IP2PChannelMessage,
@@ -9,7 +8,8 @@ import {
   RTCEventCallback,
   RTCEventKey,
   RTCDataChannelEventKey,
-  ConnectionTimeoutCheck
+  ConnectionTimeoutCheck,
+  ConfigKey
 } from '@src/types'
 
 export class RTCConnectionService<IRTCMessagePayload> extends BaseService implements IRTCConnectionService<IRTCMessagePayload> {
@@ -33,15 +33,19 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
 
   /* PUBLIC */
 
-  public connect(remotePeerId: PeerId, createDataChannel = false): void {
-    const connection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
-    if (createDataChannel) {
-      const dataChannel = connection.createDataChannel(DEFAULT_DATA_CHANNEL)
-      this.initDataChannel(remotePeerId, dataChannel)
-    }
-    connection.addEventListener(RTCEventKey.DATA_CHANNEL, event => this.onDataChannelInternalCallback(remotePeerId, event))
-    connection.onicecandidate = event => this.onIceCandidateInternalCallback(remotePeerId, event)
-    this.connectionService.addConnection(remotePeerId, connection)
+  public async connect(remotePeerId: PeerId, createDataChannel = false): Promise<void> {
+    return new Promise(resolve => {
+      const connection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
+
+      connection.addEventListener(RTCEventKey.DATA_CHANNEL, event => this.onDataChannelInternalCallback(remotePeerId, event))
+      connection.onicecandidate = event => this.onIceCandidateInternalCallback(remotePeerId, event)
+
+      if (createDataChannel) {
+        const dataChannel = connection.createDataChannel(ConfigService.getConfig(ConfigKey.dataChannel))
+        resolve(this.initDataChannel(remotePeerId, dataChannel))
+      }
+      this.connectionService.addConnection(remotePeerId, connection)
+    })
   }
 
   public disconnect(remotePeerId: PeerId): void {
@@ -114,10 +118,15 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   /* PRIVATE */
 
   @logLevel(LogLevel.DEBUG)
-  private initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): void {
-    dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, () => this.onDataChannelOpenInternalCallback(remotePeerId))
-    dataChannel.addEventListener(RTCDataChannelEventKey.MESSAGE, this.onDataChannelDataInternalCallback.bind(this))
-    this.dataChannelService.addConnection(remotePeerId, dataChannel)
+  private async initDataChannel(remotePeerId: PeerId, dataChannel: RTCDataChannel): Promise<void> {
+    return new Promise(resolve => {
+      dataChannel.addEventListener(RTCDataChannelEventKey.OPEN, () => {
+        this.onDataChannelOpenInternalCallback(remotePeerId)
+        resolve()
+      })
+      dataChannel.addEventListener(RTCDataChannelEventKey.MESSAGE, this.onDataChannelDataInternalCallback.bind(this))
+      this.dataChannelService.addConnection(remotePeerId, dataChannel)
+    })
   }
 
   @logLevel(LogLevel.DEBUG)
@@ -129,11 +138,11 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
     }
     const decodedMessage = this.encodingService.decode<IP2PChannelMessage<IRTCMessagePayload>>(String(event.data))
     if (decodedMessage.payload === 'ping') {
-      return this.send(decodedMessage.sender, 'pong' as IRTCMessagePayload)
+      this.send(decodedMessage.sender, 'pong' as IRTCMessagePayload)
+      return
     }
     if (decodedMessage.payload === 'pong') {
-      const timeoutCheck = this.timeoutChecks.get(decodedMessage.sender)
-      if (timeoutCheck) clearTimeout(timeoutCheck)
+      this.clearPingTimeout(decodedMessage.sender)
       return
     }
     void this.onMessageCallback(decodedMessage)
@@ -152,17 +161,12 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   @logLevel(LogLevel.DEBUG)
   private onDataChannelInternalCallback(remotePeerId: PeerId, event: RTCDataChannelEvent) {
     if (!event.channel) return
-    this.initDataChannel(remotePeerId, event.channel)
+    void this.initDataChannel(remotePeerId, event.channel)
   }
 
   @logLevel(LogLevel.DEBUG)
   private onDataChannelOpenInternalCallback(remotePeerId: PeerId) {
-    const pingInterval = setInterval(() => {
-      this.send(remotePeerId, 'ping' as IRTCMessagePayload)
-      const timeoutId = setTimeout(() => this.disconnect(remotePeerId), PING_INTERVAL * 3)
-      this.timeoutChecks.set(remotePeerId, timeoutId)
-    }, PING_INTERVAL)
-    this.pingIntervals.set(remotePeerId, pingInterval)
+    this.setPingInterval(remotePeerId)
     if (!this.onConnectedCallback) {
       this.logService.warn('onConnectedCallback not set')
       return
@@ -171,16 +175,49 @@ export class RTCConnectionService<IRTCMessagePayload> extends BaseService implem
   }
 
   @logLevel(LogLevel.DEBUG)
-  private clearPingSequence(remotePeerId: PeerId) {
+  private clearPingInterval(remotePeerId: PeerId, shouldDelete = false) {
     const pingInterval = this.pingIntervals.get(remotePeerId)
-    const timeoutCheck = this.timeoutChecks.get(remotePeerId)
     if (pingInterval) {
       clearInterval(pingInterval)
-      this.pingIntervals.delete(remotePeerId)
+      if (shouldDelete) {
+        this.pingIntervals.delete(remotePeerId)
+      }
     }
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private clearPingTimeout(remotePeerId: PeerId, shouldDelete = false) {
+    const timeoutCheck = this.timeoutChecks.get(remotePeerId)
     if (timeoutCheck) {
       clearTimeout(timeoutCheck)
-      this.timeoutChecks.delete(remotePeerId)
+      if (shouldDelete) {
+        this.timeoutChecks.delete(remotePeerId)
+      }
     }
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private setPingInterval(remotePeerId: PeerId) {
+    this.clearPingSequence(remotePeerId)
+    const pingInterval = setInterval(() => {
+      this.send(remotePeerId, 'ping' as IRTCMessagePayload)
+      this.setPingTimeout(remotePeerId)
+    }, ConfigService.getConfig(ConfigKey.pingInterval))
+    this.pingIntervals.set(remotePeerId, pingInterval)
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private setPingTimeout(remotePeerId: PeerId) {
+    const timeoutId = setTimeout(() => {
+      const timeout = this.timeoutChecks.get(remotePeerId)
+      if (timeout) this.disconnect(remotePeerId)
+    }, ConfigService.getConfig(ConfigKey.pingTimeout))
+    this.timeoutChecks.set(remotePeerId, timeoutId)
+  }
+
+  @logLevel(LogLevel.DEBUG)
+  private clearPingSequence(remotePeerId: PeerId) {
+    this.clearPingInterval(remotePeerId, true)
+    this.clearPingTimeout(remotePeerId, true)
   }
 }

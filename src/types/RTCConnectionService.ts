@@ -31,7 +31,7 @@ export interface IPeer {
 export type ConnectionTimeoutCheck = Map<PeerId, NodeJS.Timeout | NodeJS.Timer>
 
 export interface IRTCConnectionService<IRTCMessagePayload> {
-  connect(remotePeerId: PeerId): void
+  connect(remotePeerId: PeerId): Promise<void>
 
   disconnect(remotePeerId: PeerId): void
 

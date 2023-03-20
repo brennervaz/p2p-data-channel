@@ -16,7 +16,16 @@ npm install p2p-data-channel
 ```typescript
 import P2PDataChannel from 'p2p-data-channel'
 
-const dataChannel = new P2PDataChannel('your-peer-id')
+// default config values
+const config = {
+  debug: false, // output every method call to console
+  dataChannel: 'default', // name of the data channel to be open
+  connectionTimeout: 5000, // timeout to consider connection failure on init
+  pingInterval: 3000, // interval for each ping/pong
+  pingTimeout: 6000, // timeout to consider disconnection on ping/pong
+}
+
+const dataChannel = new P2PDataChannel('your-peer-id', config) // config is optional
 
 // Receive a message
 dataChannel.onMessage((message) => {
