@@ -1,3 +1,10 @@
+## [1.10.6](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.5...v1.10.6) (2023-03-20)
+
+
+### Bug Fixes
+
+* wait for connections to resolve ([c992b3b](https://github.com/brennervaz/p2p-data-channel/commit/c992b3bbeaef193c39ca02cbb7f8d3c367209dac))
+
 ## [1.10.5](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.4...v1.10.5) (2023-03-20)
 
 
