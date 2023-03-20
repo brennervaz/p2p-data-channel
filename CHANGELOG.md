@@ -1,3 +1,10 @@
+## [1.10.4](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.3...v1.10.4) (2023-03-20)
+
+
+### Bug Fixes
+
+* cleanup interval and timeout on disconnect ([fd22c45](https://github.com/brennervaz/p2p-data-channel/commit/fd22c45982696addf22dfd32631451f6770ff8a5))
+
 ## [1.10.3](https://github.com/brennervaz/p2p-data-channel/compare/v1.10.2...v1.10.3) (2023-03-20)
 
 
